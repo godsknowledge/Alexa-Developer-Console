@@ -34,6 +34,14 @@ class LaunchRequestHandler(AbstractRequestHandler):
         # If the user either does not reply to the welcome message or says something
         # that is not understood, they will be prompted again with this text.
 
+        # Needed for class CalculateFoodIntake
+        session_attr = handler_input.attributes_manager.session_attributes
+        session_attr["foodcounter"] = 0
+        session_attr["foodCaloriesSum"] = 0
+        session_attr["foodCarbohydratesSum"] = 0
+        session_attr["foodProteinsSum"] = 0
+        session_attr["foodFatSum"] = 0
+
         reprompt_text = "Please try writing Create Profile"
 
         return (
@@ -466,7 +474,7 @@ class LoseWeight(AbstractRequestHandler):
         )
     # Man könnte hier ebenfalls alles zusammenrechnen an den Kalorien die man gegessen hat, um zu schauen ob man im Defizit ist oder nicht
 
-# test
+
 class MaintainWeight(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("MaintainWeightHandler")(handler_input)
@@ -512,7 +520,6 @@ class CalculateFoodIntake(AbstractRequestHandler):
     def handle(self, handler_input):
         slots = handler_input.request_envelope.request.intent.slots
         foodtype = slots["foodtype"].value
-
         create_foodtype_url = "https://api.edamam.com/api/food-database/v2/parser?app_id=cf568ffc&app_key=4ab5d97c9657f25c95983fd710a96627&ingr=" + foodtype + "&nutrition-type=cooking"
 
         response_API = requests.get(create_foodtype_url)
@@ -522,16 +529,21 @@ class CalculateFoodIntake(AbstractRequestHandler):
         food_protein = data['hints'][0]['food']['nutrients']['PROCNT']  # Amount of Protein
         food_fat = data['hints'][0]['food']['nutrients']['FAT']  # Amount of Fat
 
-        food_calories_1 = food_calories
-        food_carbohydrates_1 = food_carbohydrates
-        food_protein_1 = food_protein
-        food_fat_1 = food_fat
+        session_attr = handler_input.attributes_manager.session_attributes
+        session_attr["food_calories"] = food_calories
+        session_attr["food_carbohydrates"] = food_carbohydrates
+        session_attr["food_protein"] = food_protein
+        session_attr["food_fat"] = food_fat
 
-        # handler_input.attributes_manager.session_attributes["weight"]
+        calories = food_calories
+        session_attr["foodcounter"] += 1
 
-        speak_output = "You have eaten " + str(foodtype) + " . It has " + str(food_calories_1) + " calories."
+        session_attr["foodCaloriesSum"] += calories
+
+        speak_output = "You have eaten " + str(foodtype) + ". It has " + str(calories) + " calories. Counter: " + str(
+            session_attr["foodcounter"]) + ". Total calories: " + str(session_attr["foodCaloriesSum"])
+
         reprompt = "Add more food?"
-
         return (
             handler_input.response_builder.speak(speak_output).ask(reprompt).response
         )
