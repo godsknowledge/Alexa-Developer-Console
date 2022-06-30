@@ -522,6 +522,7 @@ class CalculateFoodIntake(AbstractRequestHandler):
         foodtype = slots["foodtype"].value
         create_foodtype_url = "https://api.edamam.com/api/food-database/v2/parser?app_id=cf568ffc&app_key=4ab5d97c9657f25c95983fd710a96627&ingr=" + foodtype + "&nutrition-type=cooking"
 
+        # Make an API request to get the nutrients of food
         response_API = requests.get(create_foodtype_url)
         data = response_API.json()
         food_calories = data['hints'][0]['food']['nutrients']['ENERC_KCAL']  # Amount of Calories
@@ -535,13 +536,22 @@ class CalculateFoodIntake(AbstractRequestHandler):
         session_attr["food_protein"] = food_protein
         session_attr["food_fat"] = food_fat
 
-        calories = food_calories
-        session_attr["foodcounter"] += 1
+        sumOfCalories = food_calories
+        sumOfCarbohydrates = food_carbohydrates
+        sumOfProteins = food_protein
+        sumOfFats = food_fat
 
-        session_attr["foodCaloriesSum"] += calories
+        # Round up the numbers to two decimals
+        session_attr["foodCaloriesSum"] += round(sumOfCalories, 2)
+        session_attr["foodCarbohydratesSum"] += round(sumOfCarbohydrates, 2)
+        session_attr["foodProteinsSum"] += round(sumOfProteins, 2)
+        session_attr["foodFatSum"] += round(sumOfFats, 2)
 
-        speak_output = "You have eaten " + str(foodtype) + ". It has " + str(calories) + " calories. Counter: " + str(
-            session_attr["foodcounter"]) + ". Total calories: " + str(session_attr["foodCaloriesSum"])
+        speak_output = "Your total calories amount to " + str(
+            session_attr["foodCaloriesSum"]) + " calories. You have eaten  " + str(
+            session_attr["foodCarbohydratesSum"]) + " grams of carbohydrates, " + str(
+            session_attr["foodFatSum"]) + " grams of fats, and " + str(
+            session_attr["foodProteinsSum"]) + " grams of proteins today."
 
         reprompt = "Add more food?"
         return (
