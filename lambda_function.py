@@ -466,7 +466,7 @@ class LoseWeight(AbstractRequestHandler):
         )
     # Man könnte hier ebenfalls alles zusammenrechnen an den Kalorien die man gegessen hat, um zu schauen ob man im Defizit ist oder nicht
 
-
+#
 class MaintainWeight(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("MaintainWeightHandler")(handler_input)
