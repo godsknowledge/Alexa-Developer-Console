@@ -29,14 +29,21 @@ class LaunchRequestHandler(AbstractRequestHandler):
         return ask_utils.is_request_type("LaunchRequest")(handler_input)
 
     def handle(self, handler_input):
-        speak_output = "Welcome to the nutrition consultant application! - You have multiple options: -Create Profile  -Get food information -Create Diet Plan -Calculate food intake "
+        speak_output = (
+            "Welcome to the nutrition consultant application!"
+            " You have multiple options:"
+            " 1. Create Profile"
+            " 2. Get food information"
+            " 3. Create Diet Plan"
+            " 4. Calculate food intake"
+            " 5. Get vitamins information"
+            " 6. Handle vitamin deficiency")
 
         # If the user either does not reply to the welcome message or says something
         # that is not understood, they will be prompted again with this text.
 
         # Needed for class CalculateFoodIntake
         session_attr = handler_input.attributes_manager.session_attributes
-        session_attr["foodcounter"] = 0
         session_attr["foodCaloriesSum"] = 0
         session_attr["foodCarbohydratesSum"] = 0
         session_attr["foodProteinsSum"] = 0
@@ -198,7 +205,14 @@ class CatchAllExceptionHandler(AbstractExceptionHandler):
         # type: (HandlerInput, Exception) -> Response
         logger.error(exception, exc_info=True)
 
-        speak_output = "Sorry, that didn't work. You have the following options: -Create Profile  -Get food information -Create Diet Plan -Calculate food intake "
+        speak_output = (
+            "Sorry, that didn't work. You have the following options:"
+            " 1. Create Profile"
+            " 2. Get food information"
+            " 3. Create Diet Plan"
+            " 4. Calculate food intake"
+            " 5. Get vitamins information"
+            " 6. Handle vitamin deficiency")
 
         return (
             handler_input.response_builder
@@ -525,6 +539,7 @@ class CalculateFoodIntake(AbstractRequestHandler):
         # Make an API request to get the nutrients of food
         response_API = requests.get(create_foodtype_url)
         data = response_API.json()
+        # Get the data from the JSON URL
         food_calories = data['hints'][0]['food']['nutrients']['ENERC_KCAL']  # Amount of Calories
         food_carbohydrates = data['hints'][0]['food']['nutrients']['CHOCDF']  # Amount of Carbohydrates
         food_protein = data['hints'][0]['food']['nutrients']['PROCNT']  # Amount of Protein
@@ -564,7 +579,102 @@ class CalculateFoodIntakeSum(AbstractRequestHandler):
 
         speak_output = "Total: " + str(session_attr["foodCaloriesSum"]) + " calories. Carbohydrates:  " + str(
             session_attr["foodCarbohydratesSum"]) + " grams. Fats: " + str(
-            session_attr["foodFatSum"]) + " grams. Proteins " + str(session_attr["foodProteinsSum"]) + " grams."
+            session_attr["foodFatSum"]) + " grams. Proteins " + str(session_attr["foodProteinsSum"]) + " grams"
+
+        return (
+            handler_input.response_builder.speak(speak_output).ask(speak_output).response
+        )
+
+
+class VitaminInfoIntent(AbstractRequestHandler):
+    def can_handle(self, handler_input):
+        return ask_utils.is_intent_name("VitaminInfoIntent")(handler_input)
+
+    def handle(self, handler_input):
+        speak_output = (
+            "Vitamins are vital for good health, but needed in much smaller amounts than macro-nutrients"
+            " like carbs and fats. They're important for many daily bodily functions, such as cell reproduction and growth,"
+            " but most importantly for the processing of energy in cells.")
+
+        return (
+            handler_input.response_builder.speak(speak_output).ask(speak_output).response
+        )
+
+
+class VitaminDeficiency(AbstractRequestHandler):
+    def can_handle(self, handler_input):
+        return ask_utils.is_intent_name("VitaminDeficiency")(handler_input)
+
+    def handle(self, handler_input):
+        speak_output = "How are you feeling today?"
+
+        return (
+            handler_input.response_builder.speak(speak_output).ask(speak_output).response
+        )
+
+
+class VitaminDeficiencyUserInput(AbstractRequestHandler):
+    def can_handle(self, handler_input):
+        return ask_utils.is_intent_name("VitaminDeficiencyUserInput")(handler_input)
+
+    def handle(self, handler_input):
+        slots = handler_input.request_envelope.request.intent.slots
+        feeling = slots["feeling"].value
+
+        # Store the feeling of the user in a session attribute
+        handler_input.attributes_manager.session_attributes["feeling"] = feeling
+
+        # Vitamin B1
+
+        if (feeling == "like I have dry eyes" or feeling == "dry eyes"):
+            speak_output = "Maybe you have vitamin A deficiency. Do you want to know the benefits of vitamin A are?"
+        elif (
+                feeling == "tired" or feeling == "restless" or feeling == "like I cannot concentrate" or feeling == "cannot concentrate" or feeling == "sick"):
+            speak_output = "Maybe you have vitamin B deficiency. Do you want to know what the benefits of vitamin B are?"
+        elif (feeling == "headache"):
+            speak_output = "Maybe you have vitamin C deficiency. Do you want to know what the benefits of vitamin C are?"
+        elif (feeling == "back pain"):
+            speak_output = "Maybe you have vitamin D deficiency. Do you want to know the benefits of vitamin D?"
+        elif (
+                feeling == "difficulties walking" or feeling == "muscle weakness" or feeling == "like I have circulatory problems"):
+            speak_output = "Maybe you have vitamin E deficiency. Do you want to know what the benefits of vitamin E are?"
+        elif (feeling == "bruises" or feeling == "my nose bleeds"):
+            speak_output = "Maybe you have vitamin K deficiency. Do you want to know what the benefits of vitamin K?"
+        else:
+            speak_output = "Sorry, I don't understand how you feel. Please retry."
+
+        return (
+            handler_input.response_builder
+                .speak(speak_output)
+                .ask(speak_output)
+                .response
+        )
+
+
+class VitaminBenefits(AbstractRequestHandler):
+    def can_handle(self, handler_input):
+        return ask_utils.is_intent_name("VitaminBenefits")(handler_input)
+
+    def handle(self, handler_input):
+
+        userFeeling = handler_input.attributes_manager.session_attributes["feeling"]
+
+        if (userFeeling == "like I have dry eyes") or (userFeeling == "dry eyes"):
+            speak_output = "Vitamin A helps with ..."
+        elif (userFeeling == "tired" or (userFeeling == "restless") or (userFeeling == "like I cannot concentrate") or (
+                userFeeling == "cannot concentrate") or (userFeeling == "sick") or (userFeeling == "nauseous")):
+            speak_output = "Vitamin B helps with ... "
+        elif (userFeeling == "headache"):
+            speak_output = "Vitamin C is useful for ... "
+        elif (userFeeling == "back pain"):
+            speak_output = "Vitamin D is useful for ... "
+        elif (userFeeling == "difficulties walking" or (userFeeling == "muscle weakness") or (
+                userFeeling == "like I have circulatory problems")):
+            speak_output = "Vitamin E is ... "
+        elif (userFeeling == "bruises" or (userFeeling == "my nose bleeds")):
+            speak_output = "Vitamin K is..."
+        else:
+            speak_output = "Sorry, there was a problem. Please restart the skill."
 
         return (
             handler_input.response_builder.speak(speak_output).ask(speak_output).response
@@ -594,6 +704,10 @@ sb.add_request_handler(MaintainWeight())
 sb.add_request_handler(FoodIntakeInfoHandler())
 sb.add_request_handler(CalculateFoodIntake())
 sb.add_request_handler(CalculateFoodIntakeSum())
+sb.add_request_handler(VitaminInfoIntent())
+sb.add_request_handler(VitaminDeficiency())
+sb.add_request_handler(VitaminDeficiencyUserInput())
+sb.add_request_handler(VitaminBenefits())
 
 # IntentReflectorHandler should be the last one, so it doesn't override your custom intent handlers
 sb.add_request_handler(IntentReflectorHandler())
