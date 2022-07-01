@@ -36,7 +36,7 @@ class LaunchRequestHandler(AbstractRequestHandler):
             " 2. Search food information"
             " 3. Create Diet Plan"
             " 4. Calculate food intake"
-            " 5. Caloric Range Food Suggestions"
+            " 5. Dish suggestions with caloric range"
             " 6. Handle vitamin deficiency"
             " 7. Autocomplete food ingredients"
             " 8. Get fasting types"
@@ -215,7 +215,7 @@ class CatchAllExceptionHandler(AbstractExceptionHandler):
             " 2. Search food information"
             " 3. Create Diet Plan"
             " 4. Calculate food intake"
-            " 5. Get vitamins information"
+            " 5. Dish suggestions with caloric range"
             " 6. Handle vitamin deficiency"
             " 7. Autocomplete food ingredients"
             " 8. Get fasting types"
@@ -594,24 +594,25 @@ class CalculateFoodIntakeSum(AbstractRequestHandler):
         )
 
 
-# Skill 5 (Caloric Range Food Suggestions)
-class CaloricRangeInfoIntent(AbstractRequestHandler):
+# Skill 5 (Dish suggestions with caloric range)
+class DishSuggestionsInfoIntent(AbstractRequestHandler):
     def can_handle(self, handler_input):
-        return ask_utils.is_intent_name("CaloricRangeInfoIntent")(handler_input)
+        return ask_utils.is_intent_name("DishSuggestionsInfoIntent")(handler_input)
 
     def handle(self, handler_input):
-        speak_output = "Tell me a food and a caloric range. Then I'll find meals for you."
+        speak_output = "Tell me a food item and a caloric range. (Example: Egg Range 100 to 300)"
 
         return (
             handler_input.response_builder.speak(speak_output).ask(speak_output).response
         )
 
 
-# Skill 5 (Caloric Range Food Suggestions)
-# Intent: I want to eat {food} with a caloric range from {rangeFrom} to {rangeTo}
-class CaloricRangeUserInput(AbstractRequestHandler):
+# Skill 5 (Dish suggestions with caloric range)
+# Invocation {food} range {rangeFrom} to {rangeTo}
+# Invocation: I want to eat {food} with a caloric range from {rangeFrom} to {rangeTo}
+class DishSuggestionsUserInput(AbstractRequestHandler):
     def can_handle(self, handler_input):
-        return ask_utils.is_intent_name("CaloricRangeUserInput")(handler_input)
+        return ask_utils.is_intent_name("DishSuggestionsUserInput")(handler_input)
 
     def handle(self, handler_input):
         slots = handler_input.request_envelope.request.intent.slots
@@ -626,23 +627,97 @@ class CaloricRangeUserInput(AbstractRequestHandler):
         # Make an API call to get dishes for the specified calories range
         create_foodtype_url = "https://api.edamam.com/api/food-database/v2/parser?app_id=cf568ffc&app_key=4ab5d97c9657f25c95983fd710a96627&ingr=" + str(
             foodsuggestion) + "&nutrition-type=cooking&calories=" + str(caloricRangeFrom) + "-" + str(caloricRangeTo)
-
         response_API = requests.get(create_foodtype_url)
         data = response_API.json()
-        # food_label = data['hints'][0]['food']['label']
 
+        # Empty array to store the results in
         food_label = []
+        dishCalories = []
+        dishCarbohydrates = []
+        dishProteins = []
+        dishFats = []
+
+        food_carbohydrates = data['hints'][0]['food']['nutrients']['CHOCDF']  # Amount of Carbohydrates
+        food_protein = data['hints'][0]['food']['nutrients']['PROCNT']  # Amount of Protein
+        food_fat = data['hints'][0]['food']['nutrients']['FAT']  # Amount of Fat
+
+        # For loop which iterates through food labels in JSON
         for i in range(1, 7):
             food_label.append(str(data['hints'][i]['food']['label']))
-
-        # speak_output = "You could try out the following dishes: " + str(food_label[1]) + ", " + str(food_label[2]) + ", " + str(food_label[3]) + ", and " + str(food_label[4]) + "."
+            dishCalories.append(str(data['hints'][i]['food']['nutrients']['ENERC_KCAL']))  # Calories
+            dishCarbohydrates.append(str(data['hints'][i]['food']['nutrients']['CHOCDF']))  # Carbohydrates
+            dishProteins.append(str(data['hints'][i]['food']['nutrients']['PROCNT']))  # Proteins
+            dishFats.append(str(data['hints'][i]['food']['nutrients']['FAT']))  # Fat
 
         if (str(food_label[1]) != "" and str(food_label[2]) != "" and str(food_label[3]) != "" and str(
                 food_label[4]) != ""):
-            speak_output = "You could try out the following dishes: " + str(food_label[1]) + ", " + str(
-                food_label[2]) + ", " + str(food_label[3]) + ", and " + str(food_label[4]) + "."
+            speak_output = "You could try out the following dishes: 1. " + str(food_label[1]) + " 2. " + str(
+                food_label[2]) + " 3. " + str(food_label[3]) + ", and 4. " + str(food_label[
+                                                                                     4]) + ". Do you want to know the details of one of the dishes? (Example: Yes details second dish.)"
         else:
             speak_output = "Sorry, I couldn't find any dishes for this caloric range. Do you want to retry it?"
+
+        return (
+            handler_input.response_builder
+                .speak(speak_output)
+                .ask(speak_output)
+                .response
+        )
+
+
+# Skill 5 (Dish suggestions with caloric range)
+# Invocation:
+class DishDetails(AbstractRequestHandler):
+    def can_handle(self, handler_input):
+        return ask_utils.is_intent_name("DishDetails")(handler_input)
+
+    def handle(self, handler_input):
+        slots = handler_input.request_envelope.request.intent.slots
+        dishnumber = slots["dishnumber"].value  # One, Two, Three, Four
+
+        foodsuggestion = handler_input.attributes_manager.session_attributes["food"]
+        caloricRangeFrom = handler_input.attributes_manager.session_attributes["rangeFrom"]
+        caloricRangeTo = handler_input.attributes_manager.session_attributes["rangeTo"]
+
+        # Make an API call to get dishes for the specified calories range
+        create_foodtype_url = "https://api.edamam.com/api/food-database/v2/parser?app_id=cf568ffc&app_key=4ab5d97c9657f25c95983fd710a96627&ingr=" + str(
+            foodsuggestion) + "&nutrition-type=cooking&calories=" + str(caloricRangeFrom) + "-" + str(caloricRangeTo)
+        response_API = requests.get(create_foodtype_url)
+        data = response_API.json()
+
+        # Empty array to store the results in
+        food_label = []
+        dishCalories = []
+        dishCarbohydrates = []
+        dishProteins = []
+        dishFats = []
+
+        # For loop which iterates through food labels in JSON
+        for i in range(1, 7):
+            food_label.append(str(data['hints'][i]['food']['label']))
+            dishCalories.append(str(data['hints'][i]['food']['nutrients']['ENERC_KCAL']))  # Calories
+            dishCarbohydrates.append(str(data['hints'][i]['food']['nutrients']['CHOCDF']))  # Carbohydrates
+            dishProteins.append(str(data['hints'][i]['food']['nutrients']['PROCNT']))  # Proteins
+            dishFats.append(str(data['hints'][i]['food']['nutrients']['FAT']))  # Fat
+
+        if (dishnumber == "first"):
+            speak_output = "The dish " + str(food_label[1]) + " contains " + str(dishCalories[1]) + " calories, " + str(
+                dishCarbohydrates[1]) + " grams of carbohydrates, " + str(
+                dishProteins[1]) + " grams of proteins and " + str(dishFats[1]) + " grams of fats."
+        elif (dishnumber == "second"):
+            speak_output = "The dish " + str(food_label[2]) + " contains " + str(dishCalories[2]) + " calories, " + str(
+                dishCarbohydrates[2]) + " grams of carbohydrates, " + str(
+                dishProteins[2]) + " grams of proteins and " + str(dishFats[2]) + " grams of fats."
+        elif (dishnumber == "third"):
+            speak_output = "The dish " + str(food_label[3]) + " contains " + str(dishCalories[3]) + " calories, " + str(
+                dishCarbohydrates[3]) + " grams of carbohydrates, " + str(
+                dishProteins[3]) + " grams of proteins and " + str(dishFats[3]) + " grams of fats."
+        elif (dishnumber == "fourth"):
+            speak_output = "The dish " + str(food_label[4]) + " contains " + str(dishCalories[4]) + " calories, " + str(
+                dishCarbohydrates[4]) + " grams of carbohydrates, " + str(
+                dishProteins[4]) + " grams of proteins and " + str(dishFats[4]) + " grams of fats."
+        else:
+            speak_output = "Sorry, I couldn't find the details for your dish. Are you sure you said something like Yes details first/second/third/fourth dish? Just try again. "
 
         return (
             handler_input.response_builder
@@ -756,8 +831,9 @@ sb.add_request_handler(MaintainWeight())
 sb.add_request_handler(FoodIntakeInfoHandler())
 sb.add_request_handler(CalculateFoodIntake())
 sb.add_request_handler(CalculateFoodIntakeSum())
-sb.add_request_handler(CaloricRangeInfoIntent())
-sb.add_request_handler(CaloricRangeUserInput())
+sb.add_request_handler(DishSuggestionsInfoIntent())
+sb.add_request_handler(DishSuggestionsUserInput())
+sb.add_request_handler(DishDetails())
 sb.add_request_handler(VitaminDeficiency())
 sb.add_request_handler(VitaminDeficiencyUserInput())
 sb.add_request_handler(VitaminBenefits())
