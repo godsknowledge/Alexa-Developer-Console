@@ -198,7 +198,7 @@ class CatchAllExceptionHandler(AbstractExceptionHandler):
         # type: (HandlerInput, Exception) -> Response
         logger.error(exception, exc_info=True)
 
-        speak_output = "Sorry, I had trouble doing what you asked. Please try again."
+        speak_output = "Sorry, that didn't work. You have the following options: -Create Profile  -Get food information -Create Diet Plan -Calculate food intake "
 
         return (
             handler_input.response_builder
@@ -503,7 +503,7 @@ class FoodIntakeInfoHandler(AbstractRequestHandler):
         return ask_utils.is_intent_name("FoodIntakeInfoHandler")(handler_input)
 
     def handle(self, handler_input):
-        speak_output = "With this function, you can calculate the nutritional values of the food you have eaten today. Just tell me what you have eaten."
+        speak_output = "With this function, you can calculate the nutritional values of the food you have eaten today. Tell me what you have eaten today or say Stop to calculate your food intake."
 
         return (
             handler_input.response_builder
@@ -547,15 +547,31 @@ class CalculateFoodIntake(AbstractRequestHandler):
         session_attr["foodProteinsSum"] += round(sumOfProteins, 2)
         session_attr["foodFatSum"] += round(sumOfFats, 2)
 
+        speak_output = "What else have you eaten today?"
+
+        return (
+            handler_input.response_builder.speak(speak_output).ask(speak_output).response
+        )
+
+
+class CalculateFoodIntakeSum(AbstractRequestHandler):
+    def can_handle(self, handler_input):
+        return ask_utils.is_intent_name("CalculateFoodIntakeSum")(handler_input)
+
+    def handle(self, handler_input):
+        session_attr = handler_input.attributes_manager.session_attributes
+
+        # speak_output = "Your total calories amount to " + str(session_attr["foodCaloriesSum"]) + " calories"
+
+        # calculate = slots["calculate"].value
         speak_output = "Your total calories amount to " + str(
             session_attr["foodCaloriesSum"]) + " calories. You have eaten  " + str(
             session_attr["foodCarbohydratesSum"]) + " grams of carbohydrates, " + str(
             session_attr["foodFatSum"]) + " grams of fats, and " + str(
             session_attr["foodProteinsSum"]) + " grams of proteins today."
 
-        reprompt = "Add more food?"
         return (
-            handler_input.response_builder.speak(speak_output).ask(reprompt).response
+            handler_input.response_builder.speak(speak_output).ask(speak_output).response
         )
 
 
@@ -581,6 +597,7 @@ sb.add_request_handler(GainWeight())
 sb.add_request_handler(MaintainWeight())
 sb.add_request_handler(FoodIntakeInfoHandler())
 sb.add_request_handler(CalculateFoodIntake())
+sb.add_request_handler(CalculateFoodIntakeSum())
 
 # IntentReflectorHandler should be the last one, so it doesn't override your custom intent handlers
 sb.add_request_handler(IntentReflectorHandler())
