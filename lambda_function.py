@@ -503,7 +503,7 @@ class FoodIntakeInfoHandler(AbstractRequestHandler):
         return ask_utils.is_intent_name("FoodIntakeInfoHandler")(handler_input)
 
     def handle(self, handler_input):
-        speak_output = "With this function, you can calculate the nutritional values of the food you have eaten today. Tell me what you have eaten today or say Stop to calculate your food intake."
+        speak_output = "Tell me what you have eaten today or calculate the nutritional values of other food."
 
         return (
             handler_input.response_builder
@@ -547,13 +547,14 @@ class CalculateFoodIntake(AbstractRequestHandler):
         session_attr["foodProteinsSum"] += round(sumOfProteins, 2)
         session_attr["foodFatSum"] += round(sumOfFats, 2)
 
-        speak_output = "What else have you eaten today?"
+        speak_output = "Add more food or say Calculate."
 
         return (
             handler_input.response_builder.speak(speak_output).ask(speak_output).response
         )
 
 
+# Outputs the nutritional values we calculated in the class CalculateFoodIntake
 class CalculateFoodIntakeSum(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("CalculateFoodIntakeSum")(handler_input)
@@ -561,14 +562,9 @@ class CalculateFoodIntakeSum(AbstractRequestHandler):
     def handle(self, handler_input):
         session_attr = handler_input.attributes_manager.session_attributes
 
-        # speak_output = "Your total calories amount to " + str(session_attr["foodCaloriesSum"]) + " calories"
-
-        # calculate = slots["calculate"].value
-        speak_output = "Your total calories amount to " + str(
-            session_attr["foodCaloriesSum"]) + " calories. You have eaten  " + str(
-            session_attr["foodCarbohydratesSum"]) + " grams of carbohydrates, " + str(
-            session_attr["foodFatSum"]) + " grams of fats, and " + str(
-            session_attr["foodProteinsSum"]) + " grams of proteins today."
+        speak_output = "Total: " + str(session_attr["foodCaloriesSum"]) + " calories. Carbohydrates:  " + str(
+            session_attr["foodCarbohydratesSum"]) + " grams. Fats: " + str(
+            session_attr["foodFatSum"]) + " grams. Proteins " + str(session_attr["foodProteinsSum"]) + " grams."
 
         return (
             handler_input.response_builder.speak(speak_output).ask(speak_output).response
