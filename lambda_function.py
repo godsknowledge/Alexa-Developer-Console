@@ -623,15 +623,26 @@ class CaloricRangeUserInput(AbstractRequestHandler):
         handler_input.attributes_manager.session_attributes["rangeFrom"] = caloricRangeFrom
         handler_input.attributes_manager.session_attributes["rangeTo"] = caloricRangeTo
 
+        # Make an API call to get dishes for the specified calories range
         create_foodtype_url = "https://api.edamam.com/api/food-database/v2/parser?app_id=cf568ffc&app_key=4ab5d97c9657f25c95983fd710a96627&ingr=" + str(
             foodsuggestion) + "&nutrition-type=cooking&calories=" + str(caloricRangeFrom) + "-" + str(caloricRangeTo)
 
         response_API = requests.get(create_foodtype_url)
         data = response_API.json()
-        food_label = data['hints'][0]['food']['label']
-        food_calories = data['hints'][0]['food']['nutrients']['ENERC_KCAL']
+        # food_label = data['hints'][0]['food']['label']
 
-        speak_output = "You could try out the following dishes: " + str(food_label)
+        food_label = []
+        for i in range(1, 7):
+            food_label.append(str(data['hints'][i]['food']['label']))
+
+        # speak_output = "You could try out the following dishes: " + str(food_label[1]) + ", " + str(food_label[2]) + ", " + str(food_label[3]) + ", and " + str(food_label[4]) + "."
+
+        if (str(food_label[1]) != "" and str(food_label[2]) != "" and str(food_label[3]) != "" and str(
+                food_label[4]) != ""):
+            speak_output = "You could try out the following dishes: " + str(food_label[1]) + ", " + str(
+                food_label[2]) + ", " + str(food_label[3]) + ", and " + str(food_label[4]) + "."
+        else:
+            speak_output = "Sorry, I couldn't find any dishes for this caloric range. Do you want to retry it?"
 
         return (
             handler_input.response_builder
