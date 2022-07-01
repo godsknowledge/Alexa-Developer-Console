@@ -7,7 +7,7 @@
 import logging
 import ask_sdk_core.utils as ask_utils
 
-# For the API
+# Required for the API
 import requests
 import json
 
@@ -33,11 +33,15 @@ class LaunchRequestHandler(AbstractRequestHandler):
             "Welcome to the nutrition consultant application!"
             " You have multiple options:"
             " 1. Create Profile"
-            " 2. Get food information"
+            " 2. Search food information"
             " 3. Create Diet Plan"
             " 4. Calculate food intake"
-            " 5. Get vitamins information"
-            " 6. Handle vitamin deficiency")
+            " 5. Caloric Range Food Suggestions"
+            " 6. Handle vitamin deficiency"
+            " 7. Autocomplete food ingredients"
+            " 8. Get fasting types"
+            " 9. Convert nutrients into calories"
+            " 10. Random food fun facts")
 
         # If the user either does not reply to the welcome message or says something
         # that is not understood, they will be prompted again with this text.
@@ -208,11 +212,15 @@ class CatchAllExceptionHandler(AbstractExceptionHandler):
         speak_output = (
             "Sorry, that didn't work. You have the following options:"
             " 1. Create Profile"
-            " 2. Get food information"
+            " 2. Search food information"
             " 3. Create Diet Plan"
             " 4. Calculate food intake"
             " 5. Get vitamins information"
-            " 6. Handle vitamin deficiency")
+            " 6. Handle vitamin deficiency"
+            " 7. Autocomplete food ingredients"
+            " 8. Get fasting types"
+            " 9. Convert nutrients into calories"
+            " 10. Random food fun facts")
 
         return (
             handler_input.response_builder
@@ -586,21 +594,54 @@ class CalculateFoodIntakeSum(AbstractRequestHandler):
         )
 
 
-class VitaminInfoIntent(AbstractRequestHandler):
+# Skill 5 (Caloric Range Food Suggestions)
+class CaloricRangeInfoIntent(AbstractRequestHandler):
     def can_handle(self, handler_input):
-        return ask_utils.is_intent_name("VitaminInfoIntent")(handler_input)
+        return ask_utils.is_intent_name("CaloricRangeInfoIntent")(handler_input)
 
     def handle(self, handler_input):
-        speak_output = (
-            "Vitamins are vital for good health, but needed in much smaller amounts than macro-nutrients"
-            " like carbs and fats. They're important for many daily bodily functions, such as cell reproduction and growth,"
-            " but most importantly for the processing of energy in cells.")
+        speak_output = "Tell me a food and a caloric range. Then I'll find meals for you."
 
         return (
             handler_input.response_builder.speak(speak_output).ask(speak_output).response
         )
 
 
+# Skill 5 (Caloric Range Food Suggestions)
+# Intent: I want to eat {food} with a caloric range from {rangeFrom} to {rangeTo}
+class CaloricRangeUserInput(AbstractRequestHandler):
+    def can_handle(self, handler_input):
+        return ask_utils.is_intent_name("CaloricRangeUserInput")(handler_input)
+
+    def handle(self, handler_input):
+        slots = handler_input.request_envelope.request.intent.slots
+        foodsuggestion = slots["food"].value
+        caloricRangeFrom = slots["rangeFrom"].value
+        caloricRangeTo = slots["rangeTo"].value
+
+        handler_input.attributes_manager.session_attributes["food"] = foodsuggestion
+        handler_input.attributes_manager.session_attributes["rangeFrom"] = caloricRangeFrom
+        handler_input.attributes_manager.session_attributes["rangeTo"] = caloricRangeTo
+
+        create_foodtype_url = "https://api.edamam.com/api/food-database/v2/parser?app_id=cf568ffc&app_key=4ab5d97c9657f25c95983fd710a96627&ingr=" + str(
+            foodsuggestion) + "&nutrition-type=cooking&calories=" + str(caloricRangeFrom) + "-" + str(caloricRangeTo)
+
+        response_API = requests.get(create_foodtype_url)
+        data = response_API.json()
+        food_label = data['hints'][0]['food']['label']
+        food_calories = data['hints'][0]['food']['nutrients']['ENERC_KCAL']
+
+        speak_output = "You could try out the following dishes: " + str(food_label)
+
+        return (
+            handler_input.response_builder
+                .speak(speak_output)
+                .ask(speak_output)
+                .response
+        )
+
+
+# Intent: Handle vitamin deficiency
 class VitaminDeficiency(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("VitaminDeficiency")(handler_input)
@@ -704,7 +745,8 @@ sb.add_request_handler(MaintainWeight())
 sb.add_request_handler(FoodIntakeInfoHandler())
 sb.add_request_handler(CalculateFoodIntake())
 sb.add_request_handler(CalculateFoodIntakeSum())
-sb.add_request_handler(VitaminInfoIntent())
+sb.add_request_handler(CaloricRangeInfoIntent())
+sb.add_request_handler(CaloricRangeUserInput())
 sb.add_request_handler(VitaminDeficiency())
 sb.add_request_handler(VitaminDeficiencyUserInput())
 sb.add_request_handler(VitaminBenefits())
