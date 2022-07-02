@@ -40,7 +40,7 @@ class LaunchRequestHandler(AbstractRequestHandler):
             " - 4. Calculate food intake"  # done (maybe add calculation with grams)
             " - 5. Dish suggestions with caloric range"  # done
             " - 6. Handle vitamin deficiency"  # done 
-            " - 7. Autocomplete food string"
+            " - 7. Autocomplete food ingredients"
             " - 8. Get nutrient details"
             " - 9. Convert nutrients into calories"
             " - 10. Food fun facts")
@@ -219,7 +219,7 @@ class CatchAllExceptionHandler(AbstractExceptionHandler):
             " - 4. Calculate food intake"
             " - 5. Dish suggestions with caloric range"
             " - 6. Handle vitamin deficiency"
-            " - 7. Autocomplete food string"
+            " - 7. Autocomplete food ingredients"
             " - 8. Get nutrient details"
             " - 9. Convert nutrients into calories"
             " - 10. Food fun facts")
@@ -702,19 +702,19 @@ class DishDetails(AbstractRequestHandler):
             dishProteins.append(str(data['hints'][i]['food']['nutrients']['PROCNT']))  # Proteins
             dishFats.append(str(data['hints'][i]['food']['nutrients']['FAT']))  # Fat
 
-        if (dishnumber == "first"):
+        if (dishnumber == "first" or dishnumber == "1st"):
             speak_output = "The dish " + str(food_label[1]) + " contains " + str(dishCalories[1]) + " calories, " + str(
                 dishCarbohydrates[1]) + " grams of carbohydrates, " + str(
                 dishProteins[1]) + " grams of proteins and " + str(dishFats[1]) + " grams of fats."
-        elif (dishnumber == "second"):
+        elif (dishnumber == "second" or dishnumber == "2nd"):
             speak_output = "The dish " + str(food_label[2]) + " contains " + str(dishCalories[2]) + " calories, " + str(
                 dishCarbohydrates[2]) + " grams of carbohydrates, " + str(
                 dishProteins[2]) + " grams of proteins and " + str(dishFats[2]) + " grams of fats."
-        elif (dishnumber == "third"):
+        elif (dishnumber == "third" or dishnumber == "3rd"):
             speak_output = "The dish " + str(food_label[3]) + " contains " + str(dishCalories[3]) + " calories, " + str(
                 dishCarbohydrates[3]) + " grams of carbohydrates, " + str(
                 dishProteins[3]) + " grams of proteins and " + str(dishFats[3]) + " grams of fats."
-        elif (dishnumber == "fourth"):
+        elif (dishnumber == "fourth" or dishnumber == "4th"):
             speak_output = "The dish " + str(food_label[4]) + " contains " + str(dishCalories[4]) + " calories, " + str(
                 dishCarbohydrates[4]) + " grams of carbohydrates, " + str(
                 dishProteins[4]) + " grams of proteins and " + str(dishFats[4]) + " grams of fats."
@@ -819,7 +819,7 @@ class AutocompleteFoodInfo(AbstractRequestHandler):
         return ask_utils.is_intent_name("AutocompleteFoodInfo")(handler_input)
 
     def handle(self, handler_input):
-        speak_output = "Name a few letters, and I will try to find all food that contain those! For example: Autocomplete BA"
+        speak_output = "Name a few letters, and I will try to find all food ingredients that contain those! For example: Autocomplete nut"
 
         return (
             handler_input.response_builder.speak(speak_output).ask(speak_output).response
@@ -832,10 +832,32 @@ class AutocompleteFoodUserInput(AbstractRequestHandler):
         return ask_utils.is_intent_name("AutocompleteFoodUserInput")(handler_input)
 
     def handle(self, handler_input):
+
         slots = handler_input.request_envelope.request.intent.slots
         substring = slots["substring"].value
 
-        speak_output = "Substring: " + str(substring)
+        searchResults = []
+
+        # Make an API call to get results for the specified substring
+        create_foodsubstring_url = "https://api.edamam.com/auto-complete?app_id=cf568ffc&app_key=4ab5d97c9657f25c95983fd710a96627&q=" + str(
+            substring)
+
+        response_API = requests.get(create_foodsubstring_url)
+        data = response_API.json()
+
+        for i in range(1, 5):
+            searchResults.append(data)
+
+        for list in searchResults:
+            for string in list:
+                None
+
+        if (str(list[0]) != "" and str(list[1]) != "" and str(list[2]) != "" and str(list[3]) != ""):
+            speak_output = "I've found the following results: " + str(list[0]) + ", " + str(list[1]) + ", " + str(
+                list[2]) + ", " + str(list[3]) + ", and " + str(
+                list[4]) + ". You can try another ingredient or function now."
+        else:
+            speak_output = "Sorry, I couldn't find any ingredients for your specified letters. You can try it with other letters or call another function.?"
 
         return (
             handler_input.response_builder.speak(speak_output).ask(speak_output).response
