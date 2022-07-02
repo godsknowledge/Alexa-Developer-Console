@@ -11,6 +11,8 @@ import ask_sdk_core.utils as ask_utils
 import requests
 import json
 
+import random
+
 from ask_sdk_core.skill_builder import SkillBuilder
 from ask_sdk_core.dispatch_components import AbstractRequestHandler
 from ask_sdk_core.dispatch_components import AbstractExceptionHandler
@@ -41,7 +43,7 @@ class LaunchRequestHandler(AbstractRequestHandler):
             " 7. Autocomplete food ingredients"
             " 8. Get fasting types"
             " 9. Convert nutrients into calories"
-            " 10. Random food fun facts")
+            " 10. Food fun facts")
 
         # If the user either does not reply to the welcome message or says something
         # that is not understood, they will be prompted again with this text.
@@ -220,7 +222,7 @@ class CatchAllExceptionHandler(AbstractExceptionHandler):
             " 7. Autocomplete food ingredients"
             " 8. Get fasting types"
             " 9. Convert nutrients into calories"
-            " 10. Random food fun facts")
+            " 10. Food fun facts")
 
         return (
             handler_input.response_builder
@@ -808,6 +810,73 @@ class VitaminBenefits(AbstractRequestHandler):
         )
 
 
+# Skill 10
+class FoodFunFacts(AbstractRequestHandler):
+    def can_handle(self, handler_input):
+        return ask_utils.is_intent_name("FoodFunFacts")(handler_input)
+
+    def handle(self, handler_input):
+
+        # Generates a random number from 0 to 10
+        value = random.randint(0, 10)
+
+        if (value == 0):
+            speak_output = (
+                "Crackers have holes in them for a reason."
+                " During the baking process, if the crackers have holes in them, it prevents air bubbles from ruining the product.")
+        elif (value == 1):
+            speak_output = (
+                "Ketchup used to be used as a medicine."
+                " Back in the early 1800s, people thought tomatoes had medicinal qualities."
+                " One doctor claimed they could treat diarrhea and indigestion, so he made a recipe for a type of tomato ketchup which then became a pill.")
+        elif (value == 2):
+            speak_output = (
+                "White chocolate isn’t chocolate."
+                " Its name is deceiving because white chocolate doesn’t have any components of regular chocolate."
+                " It’s just a mixture of sugar, milk, vanilla, lecithin, and cocoa butter.")
+        elif (value == 3):
+            speak_output = (
+                "Peppers don’t actually burn your mouth."
+                " There’s a chemical in chili peppers called capsaicin that tricks your mouth into feeling like it’s being burned – that’s why spicy food hurts.")
+        elif (value == 4):
+            speak_output = (
+                "Cheese is the most stolen food in the world."
+                " In fact, it’s stolen so much it has its own percentage! About 4% of all cheese made around the globe ends up stolen.")
+        elif (value == 5):
+            speak_output = (
+                "One in four hazelnuts ends up in Nutella."
+                " Since they’re in such high demand, some universities are trying to grow them in labs in order to negate global shortages.")
+        elif (value == 6):
+            speak_output = (
+                "Certain music can make you drink faster."
+                " Researchers had an experiment to see how people’s drinking habits changed based on the music that was playing."
+                " Loud music seemed to make people drink more, and faster.")
+        elif (value == 7):
+            speak_output = (
+                "Expiration dates on bottled water have nothing to do with the water."
+                " Water can’t expire – but the bottle it’s in can. Plastic bottles will eventually start leaking chemicals into the water."
+                " It won’t make the water harmful to drink, but it will make it taste less fresh.")
+        elif (value == 8):
+            speak_output = (
+                "Honey is bee vomit."
+                " When bees collect nectar, they drink it and keep it in their stomach"
+                " Once they’re back at the hive, they regurgitate the nectar into the hive.")
+        elif (value == 9):
+            speak_output = (
+                " French fries originated in Belgium, not France!"
+                " They are only called French fries because they are French cut.")
+        elif (value == 10):
+            speak_output = (
+                "Strawberries are not berries."
+                " Technically, berries only have seeds on the inside, a rule which is obviously broken by strawberries!")
+        else:
+            print("Sorry, I think there's some kind of issue. Please retry.")
+
+        return (
+            handler_input.response_builder.speak(speak_output).ask(speak_output).response
+        )
+
+
 sb = SkillBuilder()
 
 sb.add_request_handler(LaunchRequestHandler())
@@ -837,6 +906,7 @@ sb.add_request_handler(DishDetails())
 sb.add_request_handler(VitaminDeficiency())
 sb.add_request_handler(VitaminDeficiencyUserInput())
 sb.add_request_handler(VitaminBenefits())
+sb.add_request_handler(FoodFunFacts())
 
 # IntentReflectorHandler should be the last one, so it doesn't override your custom intent handlers
 sb.add_request_handler(IntentReflectorHandler())
