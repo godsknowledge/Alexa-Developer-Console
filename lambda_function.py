@@ -330,8 +330,8 @@ class HeightHandler(AbstractRequestHandler):
 
     def handle(self, handler_input):
         slots = handler_input.request_envelope.request.intent.slots
-        userHeight = int(slots["height"].value)
-        handler_input.attributes_manager.session_attributes["height"] = userHeight
+        userHeight = int(slots["userheight"].value)
+        handler_input.attributes_manager.session_attributes["userheight"] = userHeight
 
         if (int(userHeight) <= 160):
             speak_output = "You're small! Tell me your gender and I'll calculate your Body Mass Index (BMI)."
@@ -360,11 +360,13 @@ class BMICalculator(AbstractRequestHandler):
 
     def handle(self, handler_input):
         slots = handler_input.request_envelope.request.intent.slots
-        userGender = slots["gender"].value
+        userGender = str(slots["gender"].value)
         handler_input.attributes_manager.session_attributes["gender"] = userGender
-        calcWeight = int(handler_input.attributes_manager.session_attributes["weight"])
-        calcHeight = int(handler_input.attributes_manager.session_attributes["height"])
 
+        calcWeight = handler_input.attributes_manager.session_attributes["userweight"]
+        calcHeight = handler_input.attributes_manager.session_attributes["userheight"]
+
+        speak_output = "calcWeight: " + str(calcWeight) + " and calcHeight: " + str(calcHeight)
         step1 = (float(calcHeight) * float(calcHeight)) / 10000  # (160*160)/10000 = 2.56
         step2 = (float(calcWeight) / step1)  # 55 / 2.56 = 21.5
 
@@ -396,6 +398,7 @@ class BMICalculator(AbstractRequestHandler):
         )
 
 
+# Option 1
 # Calculates the calories (basal metabolism) a person needs per day
 # Formula Women: 655.1 + (9.6 * weight in kg) + (1.8 * height in cm) - (4.7 * age)
 # Formula Men: 66.47 + (13,7 * weight in kg) + (5 * height in cm) - (6,8 * age)
@@ -407,8 +410,8 @@ class CaloriesCalculator(AbstractRequestHandler):
     def handle(self, handler_input):
         userGender = handler_input.attributes_manager.session_attributes["gender"]
         calcAge = handler_input.attributes_manager.session_attributes["age"]
-        calcWeight = handler_input.attributes_manager.session_attributes["weight"]
-        calcHeight = handler_input.attributes_manager.session_attributes["height"]
+        calcWeight = handler_input.attributes_manager.session_attributes["userweight"]
+        calcHeight = handler_input.attributes_manager.session_attributes["userheight"]
 
         formulawomen = float(655.1 + (9.6 * float(calcWeight) + (1.8 * float(calcHeight) - (4.7 * float(calcAge)))))
         roundCaloriesWomen = round(formulawomen, 2)
@@ -467,9 +470,11 @@ class GainWeight(AbstractRequestHandler):
         # speak_output = "caloricSurplusMen: " + str(caloricSurplusMen) + " userGender: " + userGender
 
         if (userGender == "Woman"):
-            speak_output = "You have to eat " + str(caloricSurplusWomen) + " calories to gain weight to build muscle."
+            speak_output = "You have to eat " + str(
+                caloricSurplusWomen) + " calories daily to gain weight to build muscle."
         else:
-            speak_output = "You have to eat " + str(caloricSurplusMen) + " calories to gain weight to build muscle."
+            speak_output = "You have to eat " + str(
+                caloricSurplusMen) + " calories daily to gain weight to build muscle."
 
         return (
             handler_input.response_builder
@@ -493,9 +498,9 @@ class LoseWeight(AbstractRequestHandler):
         caloricDeficitMen = float(roundCaloriesMen - 500)
 
         if (userGender == "Woman"):
-            speak_output = "You have to eat " + str(caloricDeficitWomen) + " calories to lose weight."
+            speak_output = "You have to eat " + str(caloricDeficitWomen) + " calories daily to lose weight."
         else:
-            speak_output = "You have to eat " + str(caloricDeficitMen) + " calories to lose weight."
+            speak_output = "You have to eat " + str(caloricDeficitMen) + " calories daily to lose weight."
 
         return (
             handler_input.response_builder
@@ -517,9 +522,9 @@ class MaintainWeight(AbstractRequestHandler):
         roundCaloriesMen = handler_input.attributes_manager.session_attributes["caloriesMen"]
 
         if (userGender == "Woman"):
-            speak_output = "You have to eat " + str(roundCaloriesWomen) + " calories to lose weight."
+            speak_output = "You have to eat " + str(roundCaloriesWomen) + " calories daily to lose weight."
         else:
-            speak_output = "You have to eat " + str(roundCaloriesMen) + " calories to lose weight."
+            speak_output = "You have to eat " + str(roundCaloriesMen) + " calories daily to lose weight."
 
         return (
             handler_input.response_builder
@@ -766,19 +771,19 @@ class VitaminDeficiencyUserInput(AbstractRequestHandler):
         # Vitamin B1
 
         if (feeling == "like I have dry eyes" or feeling == "dry eyes"):
-            speak_output = "Maybe you have vitamin A deficiency. Do you want to know the benefits of vitamin A are?"
+            speak_output = "Maybe you have vitamin A deficiency. Say 'benefits' if you want to know more about the benefits of vitamin A."
         elif (
                 feeling == "tired" or feeling == "restless" or feeling == "like I cannot concentrate" or feeling == "cannot concentrate" or feeling == "sick"):
-            speak_output = "Maybe you have vitamin B deficiency. Do you want to know what the benefits of vitamin B are?"
+            speak_output = "Maybe you have vitamin B deficiency. Say 'benefits' if you want to know more about the benefits of vitamin B."
         elif (feeling == "headache"):
-            speak_output = "Maybe you have vitamin C deficiency. Do you want to know what the benefits of vitamin C are?"
+            speak_output = "Maybe you have vitamin C deficiency. Say 'benefits' if you want to know more about the benefits of vitamin C."
         elif (feeling == "back pain"):
-            speak_output = "Maybe you have vitamin D deficiency. Do you want to know the benefits of vitamin D?"
+            speak_output = "Maybe you have vitamin D deficiency. Say 'benefits' if you want to know more about the benefits of vitamin D."
         elif (
                 feeling == "difficulties walking" or feeling == "muscle weakness" or feeling == "like I have circulatory problems"):
-            speak_output = "Maybe you have vitamin E deficiency. Do you want to know what the benefits of vitamin E are?"
+            speak_output = "Maybe you have vitamin E deficiency. Say 'benefits' if you want to know more about the benefits of vitamin E."
         elif (feeling == "bruises" or feeling == "my nose bleeds"):
-            speak_output = "Maybe you have vitamin K deficiency. Do you want to know what the benefits of vitamin K?"
+            speak_output = "Maybe you have vitamin K deficiency. Say 'benefits' if you want to know more about the benefits of vitamin K."
         else:
             speak_output = "Sorry, I don't understand how you feel. Please retry."
 
@@ -796,7 +801,6 @@ class VitaminBenefits(AbstractRequestHandler):
         return ask_utils.is_intent_name("VitaminBenefits")(handler_input)
 
     def handle(self, handler_input):
-
         userFeeling = handler_input.attributes_manager.session_attributes["feeling"]
 
         if (userFeeling == "like I have dry eyes") or (userFeeling == "dry eyes"):
