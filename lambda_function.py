@@ -622,7 +622,7 @@ class CalculateFoodIntake(AbstractRequestHandler):
         session_attr["foodProteinsSum"] += round(sumOfProteins, 2)
         session_attr["foodFatSum"] += round(sumOfFats, 2)
 
-        speak_output = "Add more food or say Calculate."
+        speak_output = "Add more food or say 'Calculate'."
 
         return (
             handler_input.response_builder.speak(speak_output).ask(speak_output).response
@@ -639,14 +639,16 @@ class CalculateFoodIntakeSum(AbstractRequestHandler):
         session_attr = handler_input.attributes_manager.session_attributes
 
         f = open("/tmp/profile.txt", "a")
-        f.write("Food intake today : - " + str(session_attr["foodCaloriesSum"]) + " calories. - " + str(
-            session_attr["foodCarbohydratesSum"]) + " g carbohydrates - " + str(
-            session_attr["foodFatSum"]) + " g fat - " + str(session_attr["foodProteinsSum"]) + " g proteins")
+        f.write("Food intake today : - " + str(round(session_attr["foodCaloriesSum"], 2)) + " calories. - " + str(
+            round(session_attr["foodCarbohydratesSum"], 2)) + " g carbohydrates - " + str(
+            round(session_attr["foodFatSum"], 2)) + " g fat - " + str(
+            round(session_attr["foodProteinsSum"], 2)) + " g proteins. ")
         f.close()
 
-        speak_output = "Total: " + str(session_attr["foodCaloriesSum"]) + " calories. Carbohydrates:  " + str(
-            session_attr["foodCarbohydratesSum"]) + " grams. Fats: " + str(
-            session_attr["foodFatSum"]) + " grams. Proteins " + str(session_attr["foodProteinsSum"]) + " grams"
+        speak_output = "Total: " + str(round(session_attr["foodCaloriesSum"], 2)) + " calories. Carbohydrates:  " + str(
+            round(session_attr["foodCarbohydratesSum"], 2)) + " grams. Fats: " + str(
+            round(session_attr["foodFatSum"], 2)) + " grams. Proteins " + str(
+            round(session_attr["foodProteinsSum"], 2)) + " grams"
 
         return (
             handler_input.response_builder.speak(speak_output).ask(speak_output).response
