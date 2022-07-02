@@ -40,10 +40,10 @@ class LaunchRequestHandler(AbstractRequestHandler):
             " - 4. Calculate food intake"  # done (maybe add calculation with grams)
             " - 5. Dish suggestions with caloric range"  # done
             " - 6. Handle vitamin deficiency"  # done 
-            " - 7. Autocomplete food ingredients"
+            " - 7. Autocomplete food ingredients"  # done
             " - 8. Get nutrient details"
             " - 9. Convert nutrients into calories"
-            " - 10. Food fun facts")
+            " - 10. Food fun facts")  # done
 
         # If the user either does not reply to the welcome message or says something
         # that is not understood, they will be prompted again with this text.
@@ -864,6 +864,83 @@ class AutocompleteFoodUserInput(AbstractRequestHandler):
         )
 
 
+# Option 8
+class NutrientDetailsInfo(AbstractRequestHandler):
+    def can_handle(self, handler_input):
+        return ask_utils.is_intent_name("NutrientDetailsInfo")(handler_input)
+
+    def handle(self, handler_input):
+        speak_output = "Ask me about a nutrient and I will check if I can tell you more about it! For example: Proteins"
+
+        return (
+            handler_input.response_builder.speak(speak_output).ask(speak_output).response
+        )
+
+
+# Option 8
+class NutrientDetailsUserInput(AbstractRequestHandler):
+    def can_handle(self, handler_input):
+        return ask_utils.is_intent_name("NutrientDetailsUserInput")(handler_input)
+
+    def handle(self, handler_input):
+
+        slots = handler_input.request_envelope.request.intent.slots
+        nutrient = slots["nutrient"].value
+
+        # The .lower function checks if the string has been written in upper or lower case.
+        # Without it, we would have written if (nutrient == "Proteins" or nutrient == "proteins"):
+        if (nutrient == "proteins"):
+            speak_output = "Proteins are necessary for tissue formation, cell reparation, and hormone and enzyme production. They are essential for building strong muscles and a healthy immune system."
+        elif (nutrient == "carbohydrates"):
+            speak_output = "Carbohydrates are a ready source of energy for the body and provide structural constituents for the formation of cells."
+        elif (nutrient == "fat"):
+            speak_output = "Fats provide stored energy for the body, functions as structural components of cells, and signaling molecules for proper cellular communication. They provide insulation to vital organs and works to maintain body temperature."
+        elif (nutrient == "vitamins"):
+            speak_output = "Vitamins regulate body processes and promote normal body-system functions."
+        elif (nutrient == "minerals"):
+            speak_output = "Minerals regulate body processes. They are necessary for proper cellular function, and comprise body tissue."
+        elif (nutrient == "water"):
+            speak_output = "Water ransports essential nutrients to all body parts. It transports waste products for disposal, and aids with body temperature maintenance."
+        elif (nutrient == "sodium"):
+            speak_output = "Major functions of sodium are fluid balance, nerve transmission and muscle contraction."
+        elif (nutrient == "chloride"):
+            speak_output = "Major functions of chloride are fluid balance and stomach acid production."
+        elif (nutrient == "potassium"):
+            speak_output = "Major functions of potassium are fluid balance, nerve transmission, muscle contraction."
+        elif (nutrient = "calcium"):
+            speak_output = "Major functions of calcium are bone and teeth health maintenance, nerve transmission, muscle contraction and blood clotting."
+        elif (nutrient == "phosphorus"):
+            speak_output = "Major functions of phosphoures are bone and teeth health maintenance and acid-base balance."
+        elif (nutrient == "magnesium"):
+            speak_output = "Major functions of magnesium are protein production, nerve transmission, muscle contraction."
+        elif (nutrient == "sulfur"):
+            speak_output = "Sulfur is important for the production of protein."
+        elif (nutrient == "iron"):
+            speak_output = "Iron carries oxygen and assists in energy production."
+        elif (nutrient == "zinc"):
+            speak_output = "Major function of zinc are protein and DNA production, wound healing, growth and immune system functions."
+        elif (nutrient == "iodine"):
+            speak_output = "Major functions of iodine are thyroid hormone production, growth and metabolism."
+        elif (nutrient == "selenium"):
+            speak_output = "Selenium is an antioxidant"
+        elif (nutrient = "copper"):
+            speak_output = "Copper is a coenzyme and used for iron metabolism."
+        elif (nutrient == "manganese"):
+            speak_output = "Manganese is a coenzyme."
+        elif (nutrient == "fluoride"):
+            speak_output = "Fluoride is important for bone and teeth health maintenance and tooth decay prevention."
+        elif (nutrient == "chromium"):
+            speak_output = "Chromium assists insulin in glucose metabolism."
+        elif (nutrient == "molybendum"):
+            speak_output = "Molybendum is a coenzyme."
+        else:
+            speak_output = "Sorry, I couldn't find your nutrient. Try another one or use one of the options from earlier. "
+
+        return (
+            handler_input.response_builder.speak(speak_output).ask(speak_output).response
+        )
+
+
 # Option 10
 class FoodFunFacts(AbstractRequestHandler):
     def can_handle(self, handler_input):
@@ -954,14 +1031,16 @@ sb.add_request_handler(MaintainWeight())
 sb.add_request_handler(FoodIntakeInfoHandler())
 sb.add_request_handler(CalculateFoodIntake())
 sb.add_request_handler(CalculateFoodIntakeSum())
-sb.add_request_handler(DishSuggestionsInfoIntent())
-sb.add_request_handler(DishSuggestionsUserInput())
+sb.add_request_handler(DishSuggestionsInfoIntent())  # Option 5
+sb.add_request_handler(DishSuggestionsUserInput())  # Option 5
 sb.add_request_handler(DishDetails())  # Option 5
 sb.add_request_handler(VitaminDeficiency())  # Option 6
 sb.add_request_handler(VitaminDeficiencyUserInput())  # Option 6
 sb.add_request_handler(VitaminBenefits())  # Option 6
 sb.add_request_handler(AutocompleteFoodInfo())  # Option 7
 sb.add_request_handler(AutocompleteFoodUserInput())  # Option 7
+sb.add_request_handler(NutrientDetailsInfo())  # Option 8
+sb.add_request_handler(NutrientDetailsUserInput())  # Option 8
 sb.add_request_handler(FoodFunFacts())  # Option 10
 
 # IntentReflectorHandler should be the last one, so it doesn't override your custom intent handlers
