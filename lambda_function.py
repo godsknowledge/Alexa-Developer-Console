@@ -41,7 +41,7 @@ class LaunchRequestHandler(AbstractRequestHandler):
             " - 5. Dish suggestions with caloric range"  # done
             " - 6. Handle vitamin deficiency"  # done 
             " - 7. Autocomplete food ingredients"  # done
-            " - 8. Get nutrient details"
+            " - 8. Get nutrient information"  # done
             " - 9. Convert nutrients into calories"
             " - 10. Food fun facts")  # done
 
@@ -220,7 +220,7 @@ class CatchAllExceptionHandler(AbstractExceptionHandler):
             " - 5. Dish suggestions with caloric range"
             " - 6. Handle vitamin deficiency"
             " - 7. Autocomplete food ingredients"
-            " - 8. Get nutrient details"
+            " - 8. Get nutrient information"
             " - 9. Convert nutrients into calories"
             " - 10. Food fun facts")
 
@@ -941,6 +941,55 @@ class NutrientDetailsUserInput(AbstractRequestHandler):
         )
 
 
+# Option 9
+class ConvertNutrientsInfo(AbstractRequestHandler):
+    def can_handle(self, handler_input):
+        return ask_utils.is_intent_name("ConvertNutrientsInfo")(handler_input)
+
+    def handle(self, handler_input):
+        speak_output = "Using this option, you can calculate how many calories a certain amount of nutrients has. For example: Convert 100 grams of fat"
+
+        return (
+            handler_input.response_builder.speak(speak_output).ask(speak_output).response
+        )
+
+
+# Option 9
+class ConvertNutrientsUserInput(AbstractRequestHandler):
+    def can_handle(self, handler_input):
+        return ask_utils.is_intent_name("ConvertNutrientsUserInput")(handler_input)
+
+    def handle(self, handler_input):
+
+        slots = handler_input.request_envelope.request.intent.slots
+        nutrientweight = slots["nutrientweight"].value  # Weight in grams
+        type = slots["type"].value  # carbs/fat/proteins
+
+        calculateCaloriesCarbs = int(nutrientweight) * 4
+        calculateCaloriesFats = int(nutrientweight) * 9
+        calculateCaloriesProteins = int(nutrientweight) * 4
+
+        # 1 gram of fat = 9 calories
+        # 1 gram of carbohydrates = 4 calories
+        # 1 gram of proteins = 4 calories
+
+        if (type == "carbohydrates"):
+            speak_output = str(nutrientweight) + " gram of " + str(type) + " amounts to " + str(
+                calculateCaloriesCarbs) + " calories. You can try another nutrient or option now."
+        elif (type == "fat" or type == "fats"):
+            speak_output = str(nutrientweight) + " gram of " + str(type) + " amounts to " + str(
+                calculateCaloriesFats) + " calories. You can try another nutrient or option now."
+        elif (type == "protein" or type == "proteins"):
+            speak_output = str(nutrientweight) + " gram of " + str(type) + " amounts to " + str(
+                calculateCaloriesProteins) + " calories. You can try another nutrient or option now."
+        else:
+            speak_output = "Sorry, I couldn't calculate that. Try again using this format: Convert 300 grams of protein"
+
+        return (
+            handler_input.response_builder.speak(speak_output).ask(speak_output).response
+        )
+
+
 # Option 10
 class FoodFunFacts(AbstractRequestHandler):
     def can_handle(self, handler_input):
@@ -1041,6 +1090,9 @@ sb.add_request_handler(AutocompleteFoodInfo())  # Option 7
 sb.add_request_handler(AutocompleteFoodUserInput())  # Option 7
 sb.add_request_handler(NutrientDetailsInfo())  # Option 8
 sb.add_request_handler(NutrientDetailsUserInput())  # Option 8
+sb.add_request_handler(ConvertNutrientsInfo())  # Option 9
+sb.add_request_handler(ConvertNutrientsUserInput())  # Option 9
+
 sb.add_request_handler(FoodFunFacts())  # Option 10
 
 # IntentReflectorHandler should be the last one, so it doesn't override your custom intent handlers
