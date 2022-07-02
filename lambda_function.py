@@ -11,6 +11,7 @@ import ask_sdk_core.utils as ask_utils
 import requests
 import json
 
+# Required for generating random numbers
 import random
 
 from ask_sdk_core.skill_builder import SkillBuilder
@@ -35,15 +36,15 @@ class LaunchRequestHandler(AbstractRequestHandler):
             "Welcome to the nutrition consultant application!"
             " You have multiple options:"
             " - 1. Create Profile"  # ToDo: Save data in file
-            " - 2. Search food information"  # done
-            " - 3. Create Diet Plan"  # open
-            " - 4. Calculate food intake"  # done (maybe add calculation with grams)
-            " - 5. Dish suggestions with caloric range"  # done
-            " - 6. Handle vitamin deficiency"  # done 
-            " - 7. Autocomplete food ingredients"  # done
-            " - 8. Get nutrient information"  # done
-            " - 9. Convert nutrients into calories"  # done
-            " - 10. Food fun facts")  # done
+            " - 2. Search Food Information"  # done
+            " - 3. Get Profile Logs"  # open
+            " - 4. Calculate Food Intake"  # done
+            " - 5. Dish Suggestions With Caloric Range"  # done
+            " - 6. Handle Vitamin Deficiency"  # Ayse must enter benefits of vitamins
+            " - 7. Autocomplete Food Ingredients"  # done
+            " - 8. Get Nutrient Information"  # done
+            " - 9. Convert Nutrients Into Calories"  # done
+            " - 10. Food Fun Facts")  # done
 
         # If the user either does not reply to the welcome message or says something
         # that is not understood, they will be prompted again with this text.
@@ -215,16 +216,17 @@ class CatchAllExceptionHandler(AbstractExceptionHandler):
 
         speak_output = (
             "Sorry, that didn't work. You have the following options:"
-            " - 1. Create Profile"
-            " - 2. Search food information"
-            " - 3. Create Diet Plan"
-            " - 4. Calculate food intake"
-            " - 5. Dish suggestions with caloric range"
-            " - 6. Handle vitamin deficiency"
-            " - 7. Autocomplete food ingredients"
-            " - 8. Get nutrient information"
-            " - 9. Convert nutrients into calories"
-            " - 10. Food fun facts")
+            " You have multiple options:"
+            " - 1. Create Profile"  # ToDo: Save data in file
+            " - 2. Search Food Information"  # done
+            " - 3. Get Logs From Profile"  # open
+            " - 4. Calculate Food Intake"  # done
+            " - 5. Dish Suggestions With Caloric Range"  # done
+            " - 6. Handle Vitamin Deficiency"  # Ayse must enter benefits of vitamins
+            " - 7. Autocomplete Food Ingredients"  # done
+            " - 8. Get Nutrient Information"  # done
+            " - 9. Convert Nutrients Into Calories"  # done
+            " - 10. Food Fun Facts")  # done
 
         return (
             handler_input.response_builder
@@ -234,7 +236,7 @@ class CatchAllExceptionHandler(AbstractExceptionHandler):
         )
 
 
-# Option 1 (Create Profile)
+# Option 1: Create Profile
 class ProfileHandler(AbstractRequestHandler):
     """Handler for AskTime Intent."""
 
@@ -252,7 +254,7 @@ class ProfileHandler(AbstractRequestHandler):
         )
 
 
-# Option 1 (Create Profile)
+# Option 1: Create Profile
 class NameHandler(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("NameHandler")(handler_input)
@@ -260,16 +262,17 @@ class NameHandler(AbstractRequestHandler):
     def handle(self, handler_input):
         slots = handler_input.request_envelope.request.intent.slots
         userName = slots["name"].value
-        speak_output = "Hello " + userName + "! How old are you?"
 
         # "a" - Append - Opens a file for appending, creates the file if it does not exist
         f = open("/tmp/tempfile.txt", "a")
-        f.write(userName)
+        f.write(str(userName) + " looool")
         f.close()
         # open and read the file after the appending:
-        # f = open("/tmp/tempfile.txt", "r")
-        # readFile = (f.read())
-        # f.close()
+        f = open("/tmp/tempfile.txt", "r")
+        readFile = (f.read())
+        f.close()
+
+        speak_output = "Hello " + readFile + "! How old are you?"
 
         return (
             handler_input.response_builder
@@ -279,7 +282,7 @@ class NameHandler(AbstractRequestHandler):
         )
 
 
-# Option 1 (Create Profile)
+# Option 1: Create Profile
 class AgeHandler(AbstractRequestHandler):
     def can_handle(self, handler_input):
         # type: (HandlerInput) -> bool
@@ -303,7 +306,7 @@ class AgeHandler(AbstractRequestHandler):
         )
 
 
-# Option 1 (Create Profile)
+# Option 1: Create Profile
 class WeightHandler(AbstractRequestHandler):
     def can_handle(self, handler_input):
         # type: (HandlerInput) -> bool
@@ -325,7 +328,7 @@ class WeightHandler(AbstractRequestHandler):
         )
 
 
-# Option 1 (Create Profile)
+# Option 1: Create Profile
 class HeightHandler(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("HeightHandler")(handler_input)
@@ -349,7 +352,7 @@ class HeightHandler(AbstractRequestHandler):
         )
 
 
-# Option 1 (Create Profile)
+# Option 1: Create Profile
 # Calculates the BMI
 # Gender: Female
 # Weight: 55 kg
@@ -400,7 +403,7 @@ class BMICalculator(AbstractRequestHandler):
         )
 
 
-# Option 1 (Create Profile)
+# Option 1: Create Profile
 # Calculates the calories (basal metabolism) a person needs per day
 # Formula Women: 655.1 + (9.6 * weight in kg) + (1.8 * height in cm) - (4.7 * age)
 # Formula Men: 66.47 + (13,7 * weight in kg) + (5 * height in cm) - (6,8 * age)
@@ -439,7 +442,7 @@ class CaloriesCalculator(AbstractRequestHandler):
         )
 
 
-# Option 1 (Create Profile)
+# Option 1: Create Profile
 class GainWeight(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("GainWeightHandler")(handler_input)
@@ -470,7 +473,7 @@ class GainWeight(AbstractRequestHandler):
         )
 
 
-# Option 1 (Create Profile)
+# Option 1: Create Profile
 class LoseWeight(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("LoseWeightHandler")(handler_input)
@@ -497,7 +500,7 @@ class LoseWeight(AbstractRequestHandler):
         )
 
 
-# Option 1 (Create Profile)
+# Option 1: Create Profile
 class MaintainWeight(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("MaintainWeightHandler")(handler_input)
@@ -521,15 +524,14 @@ class MaintainWeight(AbstractRequestHandler):
         )
 
 
-# Option 3
-# TODO: Class for DietHandler ()
-class DietHandler(AbstractRequestHandler):
+# Option 3: Get Profile Logs
+class ProfileLogs(AbstractRequestHandler):
     def can_handle(self, handler_input):
         # type: (HandlerInput) -> bool
-        return ask_utils.is_intent_name("DietHandler")(handler_input)
+        return ask_utils.is_intent_name("ProfileLogs")(handler_input)
 
     def handle(self, handler_input):
-        speak_output = "Unfortunately this function has not been fully implemented yet. Please try next time!"
+        speak_output = "I have stored the following logs: "
 
         return (
             handler_input.response_builder
@@ -540,7 +542,7 @@ class DietHandler(AbstractRequestHandler):
         )
 
 
-# Option 4: Calculate food intake
+# Option 4: Calculate Food Intake
 class FoodIntakeInfoHandler(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("FoodIntakeInfoHandler")(handler_input)
@@ -556,7 +558,7 @@ class FoodIntakeInfoHandler(AbstractRequestHandler):
         )
 
 
-# Option 4: Calculate food intake
+# Option 4: Calculate Food Intake
 class CalculateFoodIntake(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("CalculateFoodIntake")(handler_input)
@@ -599,7 +601,7 @@ class CalculateFoodIntake(AbstractRequestHandler):
         )
 
 
-# Option 4: Calculate food intake
+# Option 4: Calculate Food Intake
 # Outputs the nutritional values we calculated in the class CalculateFoodIntake
 class CalculateFoodIntakeSum(AbstractRequestHandler):
     def can_handle(self, handler_input):
@@ -617,7 +619,7 @@ class CalculateFoodIntakeSum(AbstractRequestHandler):
         )
 
 
-# Option 5 (Dish suggestions with caloric range)
+# Option 5 (Dish Suggestions With Caloric Range)
 class DishSuggestionsInfoIntent(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("DishSuggestionsInfoIntent")(handler_input)
@@ -688,8 +690,7 @@ class DishSuggestionsUserInput(AbstractRequestHandler):
         )
 
 
-# Option 5: Dish suggestions with caloric range
-# Invocation:
+# Option 5: Dish Suggestions With Caloric Range
 class DishDetails(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("DishDetails")(handler_input)
@@ -750,7 +751,7 @@ class DishDetails(AbstractRequestHandler):
         )
 
 
-# Option 6: Handle vitamin deficiency
+# Option 6: Handle Vitamin Deficiency
 class VitaminDeficiency(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("VitaminDeficiency")(handler_input)
@@ -763,7 +764,7 @@ class VitaminDeficiency(AbstractRequestHandler):
         )
 
 
-# Option 6: Handle vitamin deficiency
+# Option 6: Handle Vitamin Deficiency
 class VitaminDeficiencyUserInput(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("VitaminDeficiencyUserInput")(handler_input)
@@ -802,7 +803,7 @@ class VitaminDeficiencyUserInput(AbstractRequestHandler):
         )
 
 
-# Option 6: Handle vitamin deficiency
+# Option 6: Handle Vitamin Deficiency
 class VitaminBenefits(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("VitaminBenefits")(handler_input)
@@ -832,7 +833,7 @@ class VitaminBenefits(AbstractRequestHandler):
         )
 
 
-# Option 7: Autocomplete food ingredients
+# Option 7: Autocomplete Food Ingredients
 class AutocompleteFoodInfo(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("AutocompleteFoodInfo")(handler_input)
@@ -845,7 +846,7 @@ class AutocompleteFoodInfo(AbstractRequestHandler):
         )
 
 
-# Option 7: Autocomplete food ingredients
+# Option 7: Autocomplete Food Ingredients
 class AutocompleteFoodUserInput(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("AutocompleteFoodUserInput")(handler_input)
@@ -883,7 +884,7 @@ class AutocompleteFoodUserInput(AbstractRequestHandler):
         )
 
 
-# Option 8: Get nutrient information
+# Option 8: Get Nutrient Information
 class NutrientDetailsInfo(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("NutrientDetailsInfo")(handler_input)
@@ -896,7 +897,7 @@ class NutrientDetailsInfo(AbstractRequestHandler):
         )
 
 
-# Option 8: Get nutrient information
+# Option 8: Get Nutrient Information
 class NutrientDetailsUserInput(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("NutrientDetailsUserInput")(handler_input)
@@ -960,7 +961,7 @@ class NutrientDetailsUserInput(AbstractRequestHandler):
         )
 
 
-# Option 9
+# Option 9: Convert Nutrients Into Calories
 class ConvertNutrientsInfo(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("ConvertNutrientsInfo")(handler_input)
@@ -973,7 +974,7 @@ class ConvertNutrientsInfo(AbstractRequestHandler):
         )
 
 
-# Option 9
+# Option 9: Convert Nutrients Into Calories
 class ConvertNutrientsUserInput(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("ConvertNutrientsUserInput")(handler_input)
@@ -1009,7 +1010,7 @@ class ConvertNutrientsUserInput(AbstractRequestHandler):
         )
 
 
-# Option 10
+# Option 10: Food Fun Facts
 class FoodFunFacts(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("FoodFunFacts")(handler_input)
@@ -1095,7 +1096,7 @@ sb.add_request_handler(GainWeight())  # Option 1
 sb.add_request_handler(MaintainWeight())  # Option 1
 sb.add_request_handler(FoodInfoHandler())  # Option 2
 sb.add_request_handler(FoodRequestHandler())  # Option 2
-sb.add_request_handler(DietHandler())  # Option 3
+sb.add_request_handler(ProfileLogs())  # Option 3
 sb.add_request_handler(FoodIntakeInfoHandler())  # Option 4
 sb.add_request_handler(CalculateFoodIntake())  # Option 4
 sb.add_request_handler(CalculateFoodIntakeSum())  # Option 4
