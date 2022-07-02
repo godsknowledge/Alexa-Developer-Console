@@ -870,7 +870,7 @@ class NutrientDetailsInfo(AbstractRequestHandler):
         return ask_utils.is_intent_name("NutrientDetailsInfo")(handler_input)
 
     def handle(self, handler_input):
-        speak_output = "Ask me about a nutrient and I will check if I can tell you more about it! For example: Proteins"
+        speak_output = "Ask me about a nutrient and I will check if I can tell you more about it! For example: Magnesium"
 
         return (
             handler_input.response_builder.speak(speak_output).ask(speak_output).response
@@ -890,49 +890,49 @@ class NutrientDetailsUserInput(AbstractRequestHandler):
         # The .lower function checks if the string has been written in upper or lower case.
         # Without it, we would have written if (nutrient == "Proteins" or nutrient == "proteins"):
         if (nutrient == "proteins"):
-            speak_output = "Proteins are necessary for tissue formation, cell reparation, and hormone and enzyme production. They are essential for building strong muscles and a healthy immune system."
+            speak_output = "Proteins are necessary for tissue formation, cell reparation, and hormone and enzyme production. They are essential for building strong muscles and a healthy immune system. Try another nutrient or function now."
         elif (nutrient == "carbohydrates"):
-            speak_output = "Carbohydrates are a ready source of energy for the body and provide structural constituents for the formation of cells."
+            speak_output = "Carbohydrates are a ready source of energy for the body and provide structural constituents for the formation of cells. Try another nutrient or function now."
         elif (nutrient == "fat"):
-            speak_output = "Fats provide stored energy for the body, functions as structural components of cells, and signaling molecules for proper cellular communication. They provide insulation to vital organs and works to maintain body temperature."
+            speak_output = "Fats provide stored energy for the body, functions as structural components of cells, and signaling molecules for proper cellular communication. They provide insulation to vital organs and works to maintain body temperature. Try another nutrient or function now."
         elif (nutrient == "vitamins"):
-            speak_output = "Vitamins regulate body processes and promote normal body-system functions."
+            speak_output = "Vitamins regulate body processes and promote normal body-system functions. Try another nutrient or function now."
         elif (nutrient == "minerals"):
-            speak_output = "Minerals regulate body processes. They are necessary for proper cellular function, and comprise body tissue."
+            speak_output = "Minerals regulate body processes. They are necessary for proper cellular function, and comprise body tissue. Try another nutrient or function now."
         elif (nutrient == "water"):
-            speak_output = "Water ransports essential nutrients to all body parts. It transports waste products for disposal, and aids with body temperature maintenance."
+            speak_output = "Water ransports essential nutrients to all body parts. It transports waste products for disposal, and aids with body temperature maintenance. You should drink it a lot! Try another nutrient or function now."
         elif (nutrient == "sodium"):
-            speak_output = "Major functions of sodium are fluid balance, nerve transmission and muscle contraction."
+            speak_output = "Major functions of sodium are fluid balance, nerve transmission and muscle contraction. Try another nutrient or function now."
         elif (nutrient == "chloride"):
-            speak_output = "Major functions of chloride are fluid balance and stomach acid production."
+            speak_output = "Major functions of chloride are fluid balance and stomach acid production. Try another nutrient or function now."
         elif (nutrient == "potassium"):
-            speak_output = "Major functions of potassium are fluid balance, nerve transmission, muscle contraction."
-        elif (nutrient = "calcium"):
-            speak_output = "Major functions of calcium are bone and teeth health maintenance, nerve transmission, muscle contraction and blood clotting."
+            speak_output = "Major functions of potassium are fluid balance, nerve transmission, muscle contraction. Try another nutrient or function now."
+        elif (nutrient == "calcium"):
+            speak_output = "Major functions of calcium are bone and teeth health maintenance, nerve transmission, muscle contraction and blood clotting. Try another nutrient or function now."
         elif (nutrient == "phosphorus"):
-            speak_output = "Major functions of phosphoures are bone and teeth health maintenance and acid-base balance."
+            speak_output = "Major functions of phosphoures are bone and teeth health maintenance and acid-base balance. Try another nutrient or function now."
         elif (nutrient == "magnesium"):
-            speak_output = "Major functions of magnesium are protein production, nerve transmission, muscle contraction."
+            speak_output = "Major functions of magnesium are protein production, nerve transmission, muscle contraction. Try another nutrient or function now."
         elif (nutrient == "sulfur"):
-            speak_output = "Sulfur is important for the production of protein."
+            speak_output = "Sulfur is important for the production of protein. Try another nutrient or function now."
         elif (nutrient == "iron"):
-            speak_output = "Iron carries oxygen and assists in energy production."
+            speak_output = "Iron carries oxygen and assists in energy production. Try another nutrient or function now."
         elif (nutrient == "zinc"):
-            speak_output = "Major function of zinc are protein and DNA production, wound healing, growth and immune system functions."
+            speak_output = "Major function of zinc are protein and DNA production, wound healing, growth and immune system functions. Try another nutrient or function now."
         elif (nutrient == "iodine"):
-            speak_output = "Major functions of iodine are thyroid hormone production, growth and metabolism."
+            speak_output = "Major functions of iodine are thyroid hormone production, growth and metabolism. Try another nutrient or function now."
         elif (nutrient == "selenium"):
-            speak_output = "Selenium is an antioxidant"
-        elif (nutrient = "copper"):
-            speak_output = "Copper is a coenzyme and used for iron metabolism."
+            speak_output = "Selenium is an antioxidant. Try another nutrient or function now."
+        elif (nutrient == "copper"):
+            speak_output = "Copper is a coenzyme and used for iron metabolism. Try another nutrient or function now."
         elif (nutrient == "manganese"):
-            speak_output = "Manganese is a coenzyme."
+            speak_output = "Manganese is a coenzyme. Try another nutrient or function now."
         elif (nutrient == "fluoride"):
-            speak_output = "Fluoride is important for bone and teeth health maintenance and tooth decay prevention."
+            speak_output = "Fluoride is important for bone and teeth health maintenance and tooth decay prevention. Try another nutrient or function now."
         elif (nutrient == "chromium"):
-            speak_output = "Chromium assists insulin in glucose metabolism."
+            speak_output = "Chromium assists insulin in glucose metabolism. Try another nutrient or function now."
         elif (nutrient == "molybendum"):
-            speak_output = "Molybendum is a coenzyme."
+            speak_output = "Molybendum is a coenzyme. Try another nutrient or function now."
         else:
             speak_output = "Sorry, I couldn't find your nutrient. Try another one or use one of the options from earlier. "
 
