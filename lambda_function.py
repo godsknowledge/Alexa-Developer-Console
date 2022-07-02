@@ -630,7 +630,7 @@ class DishSuggestionsInfoIntent(AbstractRequestHandler):
         )
 
 
-# Option 5 (Dish suggestions with caloric range)
+# Option 5: Dish suggestions with caloric range
 # Invocation {food} range {rangeFrom} to {rangeTo}
 # Invocation: I want to eat {food} with a caloric range from {rangeFrom} to {rangeTo}
 class DishSuggestionsUserInput(AbstractRequestHandler):
@@ -676,7 +676,7 @@ class DishSuggestionsUserInput(AbstractRequestHandler):
                 food_label[4]) != ""):
             speak_output = "You could try out the following dishes: 1. " + str(food_label[1]) + " 2. " + str(
                 food_label[2]) + " 3. " + str(food_label[3]) + ", and 4. " + str(food_label[
-                                                                                     4]) + ". Do you want to know the details of one of the dishes? (Example: Yes details second dish.)"
+                                                                                     4]) + ". Do you want to know the details of one of the dishes? (Say, for example, 'Yes details second dish.')"
         else:
             speak_output = "Sorry, I couldn't find any dishes for this caloric range. Do you want to retry it?"
 
@@ -688,7 +688,7 @@ class DishSuggestionsUserInput(AbstractRequestHandler):
         )
 
 
-# Option 5 (Dish suggestions with caloric range)
+# Option 5: Dish suggestions with caloric range
 # Invocation:
 class DishDetails(AbstractRequestHandler):
     def can_handle(self, handler_input):
@@ -750,8 +750,7 @@ class DishDetails(AbstractRequestHandler):
         )
 
 
-# Option 6
-# Intent: Handle vitamin deficiency
+# Option 6: Handle vitamin deficiency
 class VitaminDeficiency(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("VitaminDeficiency")(handler_input)
@@ -764,7 +763,7 @@ class VitaminDeficiency(AbstractRequestHandler):
         )
 
 
-# Option 6
+# Option 6: Handle vitamin deficiency
 class VitaminDeficiencyUserInput(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("VitaminDeficiencyUserInput")(handler_input)
@@ -803,7 +802,7 @@ class VitaminDeficiencyUserInput(AbstractRequestHandler):
         )
 
 
-# Option 6
+# Option 6: Handle vitamin deficiency
 class VitaminBenefits(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("VitaminBenefits")(handler_input)
@@ -833,7 +832,7 @@ class VitaminBenefits(AbstractRequestHandler):
         )
 
 
-# Option 7
+# Option 7: Autocomplete food ingredients
 class AutocompleteFoodInfo(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("AutocompleteFoodInfo")(handler_input)
@@ -846,7 +845,7 @@ class AutocompleteFoodInfo(AbstractRequestHandler):
         )
 
 
-# Option 7
+# Option 7: Autocomplete food ingredients
 class AutocompleteFoodUserInput(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("AutocompleteFoodUserInput")(handler_input)
@@ -884,7 +883,7 @@ class AutocompleteFoodUserInput(AbstractRequestHandler):
         )
 
 
-# Option 8
+# Option 8: Get nutrient information
 class NutrientDetailsInfo(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("NutrientDetailsInfo")(handler_input)
@@ -897,7 +896,7 @@ class NutrientDetailsInfo(AbstractRequestHandler):
         )
 
 
-# Option 8
+# Option 8: Get nutrient information
 class NutrientDetailsUserInput(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("NutrientDetailsUserInput")(handler_input)
