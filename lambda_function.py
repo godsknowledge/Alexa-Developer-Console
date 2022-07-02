@@ -35,16 +35,16 @@ class LaunchRequestHandler(AbstractRequestHandler):
         speak_output = (
             "Welcome to the nutrition consultant application!"
             " You have multiple options:"
-            " - 1. Create Profile"  # ToDo: Save data in file
+            " - 1. Create Profile"  # done
             " - 2. Search Food Information"  # done
-            " - 3. Get Profile Logs"  # open
+            " - 3. Get Profile Logs"  # done
             " - 4. Calculate Food Intake"  # done
             " - 5. Dish Suggestions With Caloric Range"  # done
             " - 6. Handle Vitamin Deficiency"  # Ayse must enter benefits of vitamins
             " - 7. Autocomplete Food Ingredients"  # done
             " - 8. Get Nutrient Information"  # done
             " - 9. Convert Nutrients Into Calories"  # done
-            " - 10. Food Fun Facts")  # done
+            " - 10. Food Fun Facts")  # Ayse must add more food fun facts
 
         # If the user either does not reply to the welcome message or says something
         # that is not understood, they will be prompted again with this text.
@@ -216,7 +216,7 @@ class CatchAllExceptionHandler(AbstractExceptionHandler):
 
         speak_output = (
             "Sorry, that didn't work. You have the following options:"
-            " You have multiple options:"
+            " You have ten cool functions here!"
             " - 1. Create Profile"  # ToDo: Save data in file
             " - 2. Search Food Information"  # done
             " - 3. Get Logs From Profile"  # open
@@ -264,15 +264,15 @@ class NameHandler(AbstractRequestHandler):
         userName = slots["name"].value
 
         # "a" - Append - Opens a file for appending, creates the file if it does not exist
-        f = open("/tmp/tempfile.txt", "a")
-        f.write(str(userName) + " looool")
+        f = open("/tmp/profile.txt", "a")
+        f.write("User: " + str(userName) + ". ")
         f.close()
         # open and read the file after the appending:
-        f = open("/tmp/tempfile.txt", "r")
-        readFile = (f.read())
-        f.close()
+        # f = open("/tmp/profile.txt", "r")
+        # readFile = (f.read())
+        # f.close()
 
-        speak_output = "Hello " + readFile + "! How old are you?"
+        speak_output = "Hello " + str(userName) + "! How old are you?"
 
         return (
             handler_input.response_builder
@@ -292,6 +292,10 @@ class AgeHandler(AbstractRequestHandler):
         slots = handler_input.request_envelope.request.intent.slots
         userAge = int(slots["age"].value)
         handler_input.attributes_manager.session_attributes["age"] = userAge
+
+        f = open("/tmp/profile.txt", "a")
+        f.write("Age: " + str(userAge) + ". ")
+        f.close()
 
         speak_output = "You're only " + str(userAge) + "? How much do you weigh if I may ask?"
 
@@ -317,6 +321,10 @@ class WeightHandler(AbstractRequestHandler):
         userWeight = int(slots["userweight"].value)
         handler_input.attributes_manager.session_attributes["userweight"] = userWeight
 
+        f = open("/tmp/profile.txt", "a")
+        f.write("Weight: " + str(userWeight) + " kg. ")
+        f.close()
+
         speak_output = "So you're weighing " + str(userWeight) + " kilograms. How tall are you?"
 
         return (
@@ -337,6 +345,10 @@ class HeightHandler(AbstractRequestHandler):
         slots = handler_input.request_envelope.request.intent.slots
         userHeight = int(slots["userheight"].value)
         handler_input.attributes_manager.session_attributes["userheight"] = userHeight
+
+        f = open("/tmp/profile.txt", "a")
+        f.write("Height: " + str(userHeight) + " cm. ")
+        f.close()
 
         if (int(userHeight) <= 160):
             speak_output = "You're small! Tell me your gender and I'll calculate your Body Mass Index (BMI)."
@@ -374,6 +386,10 @@ class BMICalculator(AbstractRequestHandler):
         speak_output = "calcWeight: " + str(calcWeight) + " and calcHeight: " + str(calcHeight)
         step1 = (float(calcHeight) * float(calcHeight)) / 10000  # (160*160)/10000 = 2.56
         step2 = (float(calcWeight) / step1)  # 55 / 2.56 = 21.5
+
+        f = open("/tmp/profile.txt", "a")
+        f.write("BMI: " + str(round(step2, 2)) + ". ")
+        f.close()
 
         if (step2 <= 18.5):
             speak_output = "Your BMI is " + str(round(step2,
@@ -427,9 +443,15 @@ class CaloriesCalculator(AbstractRequestHandler):
         handler_input.attributes_manager.session_attributes["caloriesWomen"] = roundCaloriesWomen
 
         if (userGender == "Mann"):
+            f = open("/tmp/profile.txt", "a")
+            f.write("Daily basal metabolic rate :" + str(roundCaloriesMen) + ".")
+            f.close()
             speak_output = "Your daily basal metabolic rate is about " + str(
                 roundCaloriesMen) + " calories. Do you want to lose, gain or maintain your weight?"
         else:
+            f = open("/tmp/profile.txt", "a")
+            f.write("Daily basal metabolic rate :" + str(roundCaloriesWomen) + ". ")
+            f.close()
             speak_output = "Your daily basal metabolic rate is about " + str(
                 roundCaloriesWomen) + " calories. Do you want to lose, gain or maintain your weight?"
 
@@ -503,7 +525,7 @@ class LoseWeight(AbstractRequestHandler):
 # Option 1: Create Profile
 class MaintainWeight(AbstractRequestHandler):
     def can_handle(self, handler_input):
-        return ask_utils.is_intent_name("MaintainWeightHandler")(handler_input)
+        return ask_utils.is_intent_name("MaintainWeight")(handler_input)
 
     def handle(self, handler_input):
         userGender = handler_input.attributes_manager.session_attributes["gender"]
@@ -511,9 +533,11 @@ class MaintainWeight(AbstractRequestHandler):
         roundCaloriesMen = handler_input.attributes_manager.session_attributes["caloriesMen"]
 
         if (userGender == "Woman"):
-            speak_output = "You have to eat " + str(roundCaloriesWomen) + " calories daily to lose weight."
+            speak_output = "You have to eat around " + str(
+                roundCaloriesWomen) + " calories daily to maintain your weight."
         else:
-            speak_output = "You have to eat " + str(roundCaloriesMen) + " calories daily to lose weight."
+            speak_output = "You have to eat around " + str(
+                roundCaloriesMen) + " calories daily to maintain your weight."
 
         return (
             handler_input.response_builder
@@ -531,7 +555,11 @@ class ProfileLogs(AbstractRequestHandler):
         return ask_utils.is_intent_name("ProfileLogs")(handler_input)
 
     def handle(self, handler_input):
-        speak_output = "I have stored the following logs: "
+        f = open("/tmp/profile.txt", "r")
+        readFile = (f.read())
+        f.close()
+
+        speak_output = "I have stored the following logs: " + readFile
 
         return (
             handler_input.response_builder
@@ -609,6 +637,12 @@ class CalculateFoodIntakeSum(AbstractRequestHandler):
 
     def handle(self, handler_input):
         session_attr = handler_input.attributes_manager.session_attributes
+
+        f = open("/tmp/profile.txt", "a")
+        f.write("Food intake today : - " + str(session_attr["foodCaloriesSum"]) + " calories. - " + str(
+            session_attr["foodCarbohydratesSum"]) + " g carbohydrates - " + str(
+            session_attr["foodFatSum"]) + " g fat - " + str(session_attr["foodProteinsSum"]) + " g proteins")
+        f.close()
 
         speak_output = "Total: " + str(session_attr["foodCaloriesSum"]) + " calories. Carbohydrates:  " + str(
             session_attr["foodCarbohydratesSum"]) + " grams. Fats: " + str(
@@ -773,10 +807,12 @@ class VitaminDeficiencyUserInput(AbstractRequestHandler):
         slots = handler_input.request_envelope.request.intent.slots
         feeling = slots["feeling"].value
 
+        f = open("/tmp/profile.txt", "a")
+        f.write("Feeling: " + str(feeling) + " . ")
+        f.close()
+
         # Store the feeling of the user in a session attribute
         handler_input.attributes_manager.session_attributes["feeling"] = feeling
-
-        # Vitamin B1
 
         if (feeling == "like I have dry eyes" or feeling == "dry eyes"):
             speak_output = "Maybe you have vitamin A deficiency. Say 'benefits' if you want to know more about the benefits of vitamin A."
