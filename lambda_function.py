@@ -34,16 +34,16 @@ class LaunchRequestHandler(AbstractRequestHandler):
         speak_output = (
             "Welcome to the nutrition consultant application!"
             " You have multiple options:"
-            " 1. Create Profile"
-            " 2. Search food information"
-            " 3. Create Diet Plan"
-            " 4. Calculate food intake"
-            " 5. Dish suggestions with caloric range"
-            " 6. Handle vitamin deficiency"
-            " 7. Autocomplete food ingredients"
-            " 8. Get fasting types"
-            " 9. Convert nutrients into calories"
-            " 10. Food fun facts")
+            " - 1. Create Profile"  # ToDo: Save data in file
+            " - 2. Search food information"  # done
+            " - 3. Create Diet Plan"  # open
+            " - 4. Calculate food intake"  # done (maybe add calculation with grams)
+            " - 5. Dish suggestions with caloric range"  # done
+            " - 6. Handle vitamin deficiency"  # done 
+            " - 7. Autocomplete food string"
+            " - 8. Get nutrient details"
+            " - 9. Convert nutrients into calories"
+            " - 10. Food fun facts")
 
         # If the user either does not reply to the welcome message or says something
         # that is not understood, they will be prompted again with this text.
@@ -213,16 +213,16 @@ class CatchAllExceptionHandler(AbstractExceptionHandler):
 
         speak_output = (
             "Sorry, that didn't work. You have the following options:"
-            " 1. Create Profile"
-            " 2. Search food information"
-            " 3. Create Diet Plan"
-            " 4. Calculate food intake"
-            " 5. Dish suggestions with caloric range"
-            " 6. Handle vitamin deficiency"
-            " 7. Autocomplete food ingredients"
-            " 8. Get fasting types"
-            " 9. Convert nutrients into calories"
-            " 10. Food fun facts")
+            " - 1. Create Profile"
+            " - 2. Search food information"
+            " - 3. Create Diet Plan"
+            " - 4. Calculate food intake"
+            " - 5. Dish suggestions with caloric range"
+            " - 6. Handle vitamin deficiency"
+            " - 7. Autocomplete food string"
+            " - 8. Get nutrient details"
+            " - 9. Convert nutrients into calories"
+            " - 10. Food fun facts")
 
         return (
             handler_input.response_builder
@@ -667,7 +667,7 @@ class DishSuggestionsUserInput(AbstractRequestHandler):
         )
 
 
-# Skill 5 (Dish suggestions with caloric range)
+# Option 5 (Dish suggestions with caloric range)
 # Invocation:
 class DishDetails(AbstractRequestHandler):
     def can_handle(self, handler_input):
@@ -729,6 +729,7 @@ class DishDetails(AbstractRequestHandler):
         )
 
 
+# Option 6
 # Intent: Handle vitamin deficiency
 class VitaminDeficiency(AbstractRequestHandler):
     def can_handle(self, handler_input):
@@ -742,6 +743,7 @@ class VitaminDeficiency(AbstractRequestHandler):
         )
 
 
+# Option 6
 class VitaminDeficiencyUserInput(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("VitaminDeficiencyUserInput")(handler_input)
@@ -780,6 +782,7 @@ class VitaminDeficiencyUserInput(AbstractRequestHandler):
         )
 
 
+# Option 6
 class VitaminBenefits(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("VitaminBenefits")(handler_input)
@@ -810,7 +813,36 @@ class VitaminBenefits(AbstractRequestHandler):
         )
 
 
-# Skill 10
+# Option 7
+class AutocompleteFoodInfo(AbstractRequestHandler):
+    def can_handle(self, handler_input):
+        return ask_utils.is_intent_name("AutocompleteFoodInfo")(handler_input)
+
+    def handle(self, handler_input):
+        speak_output = "Name a few letters, and I will try to find all food that contain those! For example: Autocomplete BA"
+
+        return (
+            handler_input.response_builder.speak(speak_output).ask(speak_output).response
+        )
+
+
+# Option 7
+class AutocompleteFoodUserInput(AbstractRequestHandler):
+    def can_handle(self, handler_input):
+        return ask_utils.is_intent_name("AutocompleteFoodUserInput")(handler_input)
+
+    def handle(self, handler_input):
+        slots = handler_input.request_envelope.request.intent.slots
+        substring = slots["substring"].value
+
+        speak_output = "Substring: " + str(substring)
+
+        return (
+            handler_input.response_builder.speak(speak_output).ask(speak_output).response
+        )
+
+
+# Option 10
 class FoodFunFacts(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("FoodFunFacts")(handler_input)
@@ -902,11 +934,13 @@ sb.add_request_handler(CalculateFoodIntake())
 sb.add_request_handler(CalculateFoodIntakeSum())
 sb.add_request_handler(DishSuggestionsInfoIntent())
 sb.add_request_handler(DishSuggestionsUserInput())
-sb.add_request_handler(DishDetails())
-sb.add_request_handler(VitaminDeficiency())
-sb.add_request_handler(VitaminDeficiencyUserInput())
-sb.add_request_handler(VitaminBenefits())
-sb.add_request_handler(FoodFunFacts())
+sb.add_request_handler(DishDetails())  # Option 5
+sb.add_request_handler(VitaminDeficiency())  # Option 6
+sb.add_request_handler(VitaminDeficiencyUserInput())  # Option 6
+sb.add_request_handler(VitaminBenefits())  # Option 6
+sb.add_request_handler(AutocompleteFoodInfo())  # Option 7
+sb.add_request_handler(AutocompleteFoodUserInput())  # Option 7
+sb.add_request_handler(FoodFunFacts())  # Option 10
 
 # IntentReflectorHandler should be the last one, so it doesn't override your custom intent handlers
 sb.add_request_handler(IntentReflectorHandler())
