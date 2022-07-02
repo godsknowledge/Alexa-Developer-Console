@@ -42,7 +42,7 @@ class LaunchRequestHandler(AbstractRequestHandler):
             " - 6. Handle vitamin deficiency"  # done 
             " - 7. Autocomplete food ingredients"  # done
             " - 8. Get nutrient information"  # done
-            " - 9. Convert nutrients into calories"
+            " - 9. Convert nutrients into calories"  # done
             " - 10. Food fun facts")  # done
 
         # If the user either does not reply to the welcome message or says something
@@ -232,6 +232,7 @@ class CatchAllExceptionHandler(AbstractExceptionHandler):
         )
 
 
+# # Option 1
 class ProfileHandler(AbstractRequestHandler):
     """Handler for AskTime Intent."""
 
@@ -239,7 +240,7 @@ class ProfileHandler(AbstractRequestHandler):
         return ask_utils.is_intent_name("CreateProfile")(handler_input)
 
     def handle(self, handler_input):
-        speak_output = "Please state your name."
+        speak_output = "Please state your name. Type, for instance 'My name is Alexa.'"
 
         return (
             handler_input.response_builder
@@ -249,6 +250,7 @@ class ProfileHandler(AbstractRequestHandler):
         )
 
 
+# Option 1
 class NameHandler(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("NameHandler")(handler_input)
@@ -263,9 +265,9 @@ class NameHandler(AbstractRequestHandler):
         f.write(userName)
         f.close()
         # open and read the file after the appending:
-        f = open("/tmp/tempfile.txt", "r")
-        readFile = (f.read())
-        f.close()
+        # f = open("/tmp/tempfile.txt", "r")
+        # readFile = (f.read())
+        # f.close()
 
         return (
             handler_input.response_builder
@@ -275,6 +277,7 @@ class NameHandler(AbstractRequestHandler):
         )
 
 
+# Option 1
 class AgeHandler(AbstractRequestHandler):
     def can_handle(self, handler_input):
         # type: (HandlerInput) -> bool
@@ -282,9 +285,10 @@ class AgeHandler(AbstractRequestHandler):
 
     def handle(self, handler_input):
         slots = handler_input.request_envelope.request.intent.slots
-        userAge = slots["age"].value
+        userAge = int(slots["age"].value)
         handler_input.attributes_manager.session_attributes["age"] = userAge
-        speak_output = "You're only " + userAge + "? How much do you weigh if I may ask?"
+
+        speak_output = "You're only " + str(userAge) + "? How much do you weigh if I may ask?"
 
         # handler_input.response_builder.speak(speak_output)
         # return handler_input.response_builder.response
@@ -297,6 +301,7 @@ class AgeHandler(AbstractRequestHandler):
         )
 
 
+# Option 1
 class WeightHandler(AbstractRequestHandler):
     def can_handle(self, handler_input):
         # type: (HandlerInput) -> bool
@@ -304,9 +309,10 @@ class WeightHandler(AbstractRequestHandler):
 
     def handle(self, handler_input):
         slots = handler_input.request_envelope.request.intent.slots
-        userWeight = slots["weight"].value
-        handler_input.attributes_manager.session_attributes["weight"] = userWeight
-        speak_output = "So you're weighing " + userWeight + " . And how tall are you?"
+        userWeight = int(slots["userweight"].value)
+        handler_input.attributes_manager.session_attributes["userweight"] = userWeight
+
+        speak_output = "So you're weighing " + str(userWeight) + " kilograms. How tall are you?"
 
         return (
             handler_input.response_builder
@@ -317,19 +323,20 @@ class WeightHandler(AbstractRequestHandler):
         )
 
 
+# Option 1
 class HeightHandler(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("HeightHandler")(handler_input)
 
     def handle(self, handler_input):
         slots = handler_input.request_envelope.request.intent.slots
-        userHeight = slots["height"].value
+        userHeight = int(slots["height"].value)
         handler_input.attributes_manager.session_attributes["height"] = userHeight
 
         if (int(userHeight) <= 160):
-            speak_output = "You're small! Are you a man or a woman?"
+            speak_output = "You're small! Tell me your gender and I'll calculate your Body Mass Index (BMI)."
         else:
-            speak_output = "You're big! Are you a man or a woman?"
+            speak_output = "You're big! Tell me your gender and I'll calculate your Body Mass Index (BMI)."
 
         return (
             handler_input.response_builder
@@ -340,6 +347,7 @@ class HeightHandler(AbstractRequestHandler):
         )
 
 
+# Option 1
 # Calculates the BMI
 # Gender: Female
 # Weight: 55 kg
@@ -354,8 +362,8 @@ class BMICalculator(AbstractRequestHandler):
         slots = handler_input.request_envelope.request.intent.slots
         userGender = slots["gender"].value
         handler_input.attributes_manager.session_attributes["gender"] = userGender
-        calcWeight = handler_input.attributes_manager.session_attributes["weight"]
-        calcHeight = handler_input.attributes_manager.session_attributes["height"]
+        calcWeight = int(handler_input.attributes_manager.session_attributes["weight"])
+        calcHeight = int(handler_input.attributes_manager.session_attributes["height"])
 
         step1 = (float(calcHeight) * float(calcHeight)) / 10000  # (160*160)/10000 = 2.56
         step2 = (float(calcWeight) / step1)  # 55 / 2.56 = 21.5
@@ -1066,12 +1074,12 @@ sb.add_request_handler(HelpIntentHandler())
 sb.add_request_handler(CancelOrStopIntentHandler())
 sb.add_request_handler(FallbackIntentHandler())
 sb.add_request_handler(SessionEndedRequestHandler())
-sb.add_request_handler(ProfileHandler())
-sb.add_request_handler(NameHandler())
-sb.add_request_handler(AgeHandler())
-sb.add_request_handler(WeightHandler())
-sb.add_request_handler(HeightHandler())
-sb.add_request_handler(BMICalculator())
+sb.add_request_handler(ProfileHandler())  # Option 1
+sb.add_request_handler(NameHandler())  # Option 1
+sb.add_request_handler(AgeHandler())  # Option 1
+sb.add_request_handler(WeightHandler())  # Option 1
+sb.add_request_handler(HeightHandler())  # Option 1
+sb.add_request_handler(BMICalculator())  # Option 1
 sb.add_request_handler(CaloriesCalculator())
 sb.add_request_handler(DietHandler())
 sb.add_request_handler(LoseWeight())
@@ -1092,7 +1100,6 @@ sb.add_request_handler(NutrientDetailsInfo())  # Option 8
 sb.add_request_handler(NutrientDetailsUserInput())  # Option 8
 sb.add_request_handler(ConvertNutrientsInfo())  # Option 9
 sb.add_request_handler(ConvertNutrientsUserInput())  # Option 9
-
 sb.add_request_handler(FoodFunFacts())  # Option 10
 
 # IntentReflectorHandler should be the last one, so it doesn't override your custom intent handlers
