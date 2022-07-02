@@ -66,13 +66,14 @@ class LaunchRequestHandler(AbstractRequestHandler):
         )
 
 
+# Option 2: Search food information
 class FoodInfoHandler(AbstractRequestHandler):
 
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("FoodInfoIntent")(handler_input)
 
     def handle(self, handler_input):
-        speak_output = "Ask me how many calories certain food has!"
+        speak_output = "Ask me how many calories certain food has! Type, for instance, 'How many calories does a banana have?'"
 
         return (
             handler_input.response_builder
@@ -82,6 +83,7 @@ class FoodInfoHandler(AbstractRequestHandler):
         )
 
 
+# Option 2: Search food information
 class FoodRequestHandler(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("FoodRequestIntent")(handler_input)
@@ -232,7 +234,7 @@ class CatchAllExceptionHandler(AbstractExceptionHandler):
         )
 
 
-# # Option 1
+# Option 1 (Create Profile)
 class ProfileHandler(AbstractRequestHandler):
     """Handler for AskTime Intent."""
 
@@ -240,7 +242,7 @@ class ProfileHandler(AbstractRequestHandler):
         return ask_utils.is_intent_name("CreateProfile")(handler_input)
 
     def handle(self, handler_input):
-        speak_output = "Please state your name. Type, for instance 'My name is Alexa.'"
+        speak_output = "Please state your name. Type, for instance, 'My name is Alexa.'"
 
         return (
             handler_input.response_builder
@@ -250,7 +252,7 @@ class ProfileHandler(AbstractRequestHandler):
         )
 
 
-# Option 1
+# Option 1 (Create Profile)
 class NameHandler(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("NameHandler")(handler_input)
@@ -277,7 +279,7 @@ class NameHandler(AbstractRequestHandler):
         )
 
 
-# Option 1
+# Option 1 (Create Profile)
 class AgeHandler(AbstractRequestHandler):
     def can_handle(self, handler_input):
         # type: (HandlerInput) -> bool
@@ -301,7 +303,7 @@ class AgeHandler(AbstractRequestHandler):
         )
 
 
-# Option 1
+# Option 1 (Create Profile)
 class WeightHandler(AbstractRequestHandler):
     def can_handle(self, handler_input):
         # type: (HandlerInput) -> bool
@@ -323,7 +325,7 @@ class WeightHandler(AbstractRequestHandler):
         )
 
 
-# Option 1
+# Option 1 (Create Profile)
 class HeightHandler(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("HeightHandler")(handler_input)
@@ -347,7 +349,7 @@ class HeightHandler(AbstractRequestHandler):
         )
 
 
-# Option 1
+# Option 1 (Create Profile)
 # Calculates the BMI
 # Gender: Female
 # Weight: 55 kg
@@ -398,7 +400,7 @@ class BMICalculator(AbstractRequestHandler):
         )
 
 
-# Option 1
+# Option 1 (Create Profile)
 # Calculates the calories (basal metabolism) a person needs per day
 # Formula Women: 655.1 + (9.6 * weight in kg) + (1.8 * height in cm) - (4.7 * age)
 # Formula Men: 66.47 + (13,7 * weight in kg) + (5 * height in cm) - (6,8 * age)
@@ -437,24 +439,7 @@ class CaloriesCalculator(AbstractRequestHandler):
         )
 
 
-# TODO: Class for DietHandler ()
-class DietHandler(AbstractRequestHandler):
-    def can_handle(self, handler_input):
-        # type: (HandlerInput) -> bool
-        return ask_utils.is_intent_name("DietHandler")(handler_input)
-
-    def handle(self, handler_input):
-        speak_output = "Unfortunately this function has not been fully implemented yet. Please try next time!"
-
-        return (
-            handler_input.response_builder
-                .speak(speak_output)
-                .ask(speak_output)
-                # .ask(reprompt_text)
-                .response
-        )
-
-
+# Option 1 (Create Profile)
 class GainWeight(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("GainWeightHandler")(handler_input)
@@ -485,6 +470,7 @@ class GainWeight(AbstractRequestHandler):
         )
 
 
+# Option 1 (Create Profile)
 class LoseWeight(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("LoseWeightHandler")(handler_input)
@@ -509,9 +495,9 @@ class LoseWeight(AbstractRequestHandler):
                 # .ask(reprompt_text)
                 .response
         )
-    # Man könnte hier ebenfalls alles zusammenrechnen an den Kalorien die man gegessen hat, um zu schauen ob man im Defizit ist oder nicht
 
 
+# Option 1 (Create Profile)
 class MaintainWeight(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("MaintainWeightHandler")(handler_input)
@@ -535,12 +521,32 @@ class MaintainWeight(AbstractRequestHandler):
         )
 
 
+# Option 3
+# TODO: Class for DietHandler ()
+class DietHandler(AbstractRequestHandler):
+    def can_handle(self, handler_input):
+        # type: (HandlerInput) -> bool
+        return ask_utils.is_intent_name("DietHandler")(handler_input)
+
+    def handle(self, handler_input):
+        speak_output = "Unfortunately this function has not been fully implemented yet. Please try next time!"
+
+        return (
+            handler_input.response_builder
+                .speak(speak_output)
+                .ask(speak_output)
+                # .ask(reprompt_text)
+                .response
+        )
+
+
+# Option 4: Calculate food intake
 class FoodIntakeInfoHandler(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("FoodIntakeInfoHandler")(handler_input)
 
     def handle(self, handler_input):
-        speak_output = "Tell me what you have eaten today or calculate the nutritional values of other food."
+        speak_output = "Tell me what you have eaten today or calculate the nutritional values of other food. Say, for example, 'I have eaten apple today'."
 
         return (
             handler_input.response_builder
@@ -550,6 +556,7 @@ class FoodIntakeInfoHandler(AbstractRequestHandler):
         )
 
 
+# Option 4: Calculate food intake
 class CalculateFoodIntake(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("CalculateFoodIntake")(handler_input)
@@ -592,6 +599,7 @@ class CalculateFoodIntake(AbstractRequestHandler):
         )
 
 
+# Option 4: Calculate food intake
 # Outputs the nutritional values we calculated in the class CalculateFoodIntake
 class CalculateFoodIntakeSum(AbstractRequestHandler):
     def can_handle(self, handler_input):
@@ -609,7 +617,7 @@ class CalculateFoodIntakeSum(AbstractRequestHandler):
         )
 
 
-# Skill 5 (Dish suggestions with caloric range)
+# Option 5 (Dish suggestions with caloric range)
 class DishSuggestionsInfoIntent(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("DishSuggestionsInfoIntent")(handler_input)
@@ -622,7 +630,7 @@ class DishSuggestionsInfoIntent(AbstractRequestHandler):
         )
 
 
-# Skill 5 (Dish suggestions with caloric range)
+# Option 5 (Dish suggestions with caloric range)
 # Invocation {food} range {rangeFrom} to {rangeTo}
 # Invocation: I want to eat {food} with a caloric range from {rangeFrom} to {rangeTo}
 class DishSuggestionsUserInput(AbstractRequestHandler):
@@ -1072,8 +1080,6 @@ class FoodFunFacts(AbstractRequestHandler):
 sb = SkillBuilder()
 
 sb.add_request_handler(LaunchRequestHandler())
-sb.add_request_handler(FoodInfoHandler())
-sb.add_request_handler(FoodRequestHandler())
 sb.add_request_handler(HelpIntentHandler())
 sb.add_request_handler(CancelOrStopIntentHandler())
 sb.add_request_handler(FallbackIntentHandler())
@@ -1084,14 +1090,16 @@ sb.add_request_handler(AgeHandler())  # Option 1
 sb.add_request_handler(WeightHandler())  # Option 1
 sb.add_request_handler(HeightHandler())  # Option 1
 sb.add_request_handler(BMICalculator())  # Option 1
-sb.add_request_handler(CaloriesCalculator())
-sb.add_request_handler(DietHandler())
-sb.add_request_handler(LoseWeight())
-sb.add_request_handler(GainWeight())
-sb.add_request_handler(MaintainWeight())
-sb.add_request_handler(FoodIntakeInfoHandler())
-sb.add_request_handler(CalculateFoodIntake())
-sb.add_request_handler(CalculateFoodIntakeSum())
+sb.add_request_handler(CaloriesCalculator())  # Option 1
+sb.add_request_handler(LoseWeight())  # Option 1
+sb.add_request_handler(GainWeight())  # Option 1
+sb.add_request_handler(MaintainWeight())  # Option 1
+sb.add_request_handler(FoodInfoHandler())  # Option 2
+sb.add_request_handler(FoodRequestHandler())  # Option 2
+sb.add_request_handler(DietHandler())  # Option 3
+sb.add_request_handler(FoodIntakeInfoHandler())  # Option 4
+sb.add_request_handler(CalculateFoodIntake())  # Option 4
+sb.add_request_handler(CalculateFoodIntakeSum())  # Option 4
 sb.add_request_handler(DishSuggestionsInfoIntent())  # Option 5
 sb.add_request_handler(DishSuggestionsUserInput())  # Option 5
 sb.add_request_handler(DishDetails())  # Option 5
