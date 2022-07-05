@@ -229,19 +229,7 @@ class CatchAllExceptionHandler(AbstractExceptionHandler):
         # type: (HandlerInput, Exception) -> Response
         logger.error(exception, exc_info=True)
 
-        speak_output = (
-            "Sorry, that didn't work. You have the following options:"
-            " You have ten cool functions here!"
-            " - 1. Create Profile"  # ToDo: Save data in file
-            " - 2. Search Food Information"  # done
-            " - 3. Get Logs From Profile"  # open
-            " - 4. Calculate Food Intake"  # done
-            " - 5. Dish Suggestions With Caloric Range"  # done
-            " - 6. Handle Vitamin Deficiency"  # Ayse must enter benefits of vitamins
-            " - 7. Autocomplete Food Ingredients"  # done
-            " - 8. Get Nutrient Information"  # done
-            " - 9. Convert Nutrients Into Calories"  # done
-            " - 10. Food Fun Facts")  # done
+        speak_output = "Sorry, that didn't work. Try using an option from 1 to 11."
 
         return (
             handler_input.response_builder
@@ -253,8 +241,6 @@ class CatchAllExceptionHandler(AbstractExceptionHandler):
 
 # Option 1: Create Profile
 class ProfileHandler(AbstractRequestHandler):
-    """Handler for AskTime Intent."""
-
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("CreateProfile")(handler_input)
 
@@ -875,11 +861,12 @@ class VitaminDeficiencyUserInput(AbstractRequestHandler):
         f.close()
 
         # Store user feeling in database
+        persistent_attributes = handler_input.attributes_manager.persistent_attributes
         persistent_attributes["user_feeling"] = str(feeling)
         handler_input.attributes_manager.save_persistent_attributes()
 
         # Store the feeling of the user in a session attribute
-        handler_input.attributes_manager.session_attributes["feeling"] = feeling
+        handler_input.attributes_manager.session_attributes["feeling"] = str(feeling)
 
         if (feeling == "like I have dry eyes" or feeling == "dry eyes"):
             speak_output = "Maybe you have vitamin A deficiency. Say 'benefits' if you want to know more about the benefits of vitamin A."
@@ -1180,6 +1167,24 @@ class FoodFunFacts(AbstractRequestHandler):
         )
 
 
+# Option 11: Load Profile
+class LoadProfile(AbstractRequestHandler):
+    def can_handle(self, handler_input):
+        return ask_utils.is_intent_name("LoadProfile")(handler_input)
+
+    def handle(self, handler_input):
+        persistent_attributes = handler_input.attributes_manager.persistent_attributes
+        speak_output = "I have loaded the following profile. Name: " + persistent_attributes["user_name"] + " . Age: " + \
+                       persistent_attributes["age"] + " ."
+
+        return (
+            handler_input.response_builder
+                .speak(speak_output)
+                .ask(speak_output)
+                .response
+        )
+
+
 # sb = SkillBuilder()
 sb = CustomSkillBuilder(persistence_adapter=dynamodb_adapter)
 
@@ -1217,6 +1222,7 @@ sb.add_request_handler(NutrientDetailsUserInput())  # Option 8
 sb.add_request_handler(ConvertNutrientsInfo())  # Option 9
 sb.add_request_handler(ConvertNutrientsUserInput())  # Option 9
 sb.add_request_handler(FoodFunFacts())  # Option 10
+sb.add_request_handler(LoadProfile())  # Option 11
 
 # IntentReflectorHandler should be the last one, so it doesn't override your custom intent handlers
 sb.add_request_handler(IntentReflectorHandler())
