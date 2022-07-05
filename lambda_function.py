@@ -14,6 +14,13 @@ import json
 # Required for generating random numbers
 import random
 
+# Required for DynamoDB
+import os
+import boto3
+
+from ask_sdk_core.skill_builder import CustomSkillBuilder
+from ask_sdk_dynamodb.adapter import DynamoDbAdapter
+
 from ask_sdk_core.skill_builder import SkillBuilder
 from ask_sdk_core.dispatch_components import AbstractRequestHandler
 from ask_sdk_core.dispatch_components import AbstractExceptionHandler
@@ -23,6 +30,12 @@ from ask_sdk_model import Response
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+
+# Defining the database region, table name and dynamodb persistence adapter
+ddb_region = os.environ.get('DYNAMODB_PERSISTENCE_REGION')
+ddb_table_name = os.environ.get('DYNAMODB_PERSISTENCE_TABLE_NAME')
+ddb_resource = boto3.resource('dynamodb', region_name=ddb_region)
+dynamodb_adapter = DynamoDbAdapter(table_name=ddb_table_name, create_table=False, dynamodb_resource=ddb_resource)
 
 
 class LaunchRequestHandler(AbstractRequestHandler):
@@ -74,7 +87,7 @@ class FoodInfoHandler(AbstractRequestHandler):
         return ask_utils.is_intent_name("FoodInfoIntent")(handler_input)
 
     def handle(self, handler_input):
-        speak_output = "Ask me how many calories certain food has! Say, for instance, 'How many calories does a banana have?'"
+        speak_output = "Ask me how many calories certain food has! Type, for instance, 'How many calories does a banana have?'"
 
         return (
             handler_input.response_builder
@@ -158,7 +171,7 @@ class FallbackIntentHandler(AbstractRequestHandler):
 
     def handle(self, handler_input):
         logger.info("In FallbackIntentHandler")
-        speech = "Sorry, I didn't understand that. Try again or choose another option."
+        speech = "Hmm, I'm not sure. You can say Hello or Help. What would you like to do?"
         reprompt = "I didn't catch that. What can I help you with?"
 
         return handler_input.response_builder.speak(speech).ask(reprompt).response
@@ -244,7 +257,7 @@ class ProfileHandler(AbstractRequestHandler):
         return ask_utils.is_intent_name("CreateProfile")(handler_input)
 
     def handle(self, handler_input):
-        speak_output = "Please state your name. Say, for instance, 'My name is Alexa.'"
+        speak_output = "Please state your name. Type, for instance, 'My name is Alexa.'"
 
         return (
             handler_input.response_builder
@@ -272,6 +285,11 @@ class NameHandler(AbstractRequestHandler):
         # readFile = (f.read())
         # f.close()
 
+        # Store user's name in DB
+        persistent_attributes = handler_input.attributes_manager.persistent_attributes
+        persistent_attributes["user_name"] = userName
+        handler_input.attributes_manager.save_persistent_attributes()
+
         speak_output = "Hello " + str(userName) + "! How old are you?"
 
         return (
@@ -296,6 +314,11 @@ class AgeHandler(AbstractRequestHandler):
         f = open("/tmp/profile.txt", "a")
         f.write("Age: " + str(userAge) + ". ")
         f.close()
+
+        # Store user's age in DB
+        persistent_attributes = handler_input.attributes_manager.persistent_attributes
+        persistent_attributes["user_age"] = userAge
+        handler_input.attributes_manager.save_persistent_attributes()
 
         speak_output = "You're only " + str(userAge) + "? How much do you weigh if I may ask?"
 
@@ -325,6 +348,11 @@ class WeightHandler(AbstractRequestHandler):
         f.write("Weight: " + str(userWeight) + " kg. ")
         f.close()
 
+        # Store user's weight in DB
+        persistent_attributes = handler_input.attributes_manager.persistent_attributes
+        persistent_attributes["user_weight"] = userWeight
+        handler_input.attributes_manager.save_persistent_attributes()
+
         speak_output = "So you're weighing " + str(userWeight) + " kilograms. How tall are you?"
 
         return (
@@ -350,6 +378,11 @@ class HeightHandler(AbstractRequestHandler):
         f.write("Height: " + str(userHeight) + " cm. ")
         f.close()
 
+        # Store user's weight in DB
+        persistent_attributes = handler_input.attributes_manager.persistent_attributes
+        persistent_attributes["user_height"] = userHeight
+        handler_input.attributes_manager.save_persistent_attributes()
+
         if (int(userHeight) <= 160):
             speak_output = "You're small! Tell me your gender and I'll calculate your Body Mass Index (BMI)."
         else:
@@ -373,7 +406,7 @@ class HeightHandler(AbstractRequestHandler):
 # Step 2: (Weight)/2.56 = 21.5
 class BMICalculator(AbstractRequestHandler):
     def can_handle(self, handler_input):
-        return ask_utils.is_intent_name("BMICalculator")(handler_input)
+        return ask_utils.is_intent_name("GenderHandler")(handler_input)
 
     def handle(self, handler_input):
         slots = handler_input.request_envelope.request.intent.slots
@@ -394,16 +427,16 @@ class BMICalculator(AbstractRequestHandler):
         if (step2 <= 18.5):
             speak_output = "Your BMI is " + str(round(step2,
                                                       2)) + " and you are slightly underweight.  Do you want to know what your daily basal metabolic rate is?"
-        elif (step2 > 18.5 or roundBMI <= 24.9):
+        elif (step2 > 18.5 or step2 <= 24.9):
             speak_output = "Your BMI is " + str(round(step2,
                                                       2)) + " and your weight is in the normal range. Do you want to know what your daily basal metabolic rate is?"
-        elif (step2 >= 25 or roundBMI <= 29.9):
+        elif (step2 >= 25 or step2 <= 29.9):
             speak_output = "Your BMI is " + str(round(step2,
                                                       2)) + " and you are overweight. Do you want to know what your daily basal metabolic rate is?"
-        elif (step2 >= 30 or roundBMI <= 34.9):
+        elif (step2 >= 30 or step2 <= 34.9):
             speak_output = "Your BMI is " + str(round(step2,
                                                       2)) + " and you are very overweight.  Do you want to know what your daily basal metabolic rate is?"
-        elif (step2 >= 35 or roundBMI <= 39.9):
+        elif (step2 >= 35 or step2 <= 39.9):
             speak_output = "Your BMI is " + str(round(step2,
                                                       2)) + " and you have second-degree obesity. Do you want to know what your daily basal metabolic rate is?"
         else:
@@ -426,7 +459,7 @@ class BMICalculator(AbstractRequestHandler):
 class CaloriesCalculator(AbstractRequestHandler):
     def can_handle(self, handler_input):
         # type: (HandlerInput) -> bool
-        return ask_utils.is_intent_name("CaloriesCalculator")(handler_input)
+        return ask_utils.is_intent_name("CaloriesHandler")(handler_input)
 
     def handle(self, handler_input):
         userGender = handler_input.attributes_manager.session_attributes["gender"]
@@ -444,7 +477,7 @@ class CaloriesCalculator(AbstractRequestHandler):
 
         if (userGender == "Mann"):
             f = open("/tmp/profile.txt", "a")
-            f.write("Daily basal metabolic rate: " + str(roundCaloriesMen) + ".")
+            f.write("Daily basal metabolic rate :" + str(roundCaloriesMen) + ".")
             f.close()
             speak_output = "Your daily basal metabolic rate is about " + str(
                 roundCaloriesMen) + " calories. Do you want to lose, gain or maintain your weight?"
@@ -850,19 +883,19 @@ class VitaminBenefits(AbstractRequestHandler):
         userFeeling = handler_input.attributes_manager.session_attributes["feeling"]
 
         if (userFeeling == "like I have dry eyes") or (userFeeling == "dry eyes"):
-            speak_output = "Vitamin A helps with an increasing visual impairment, growth retardation and brittle nails."
+            speak_output = "Vitamin A helps with ..."
         elif (userFeeling == "tired" or (userFeeling == "restless") or (userFeeling == "like I cannot concentrate") or (
                 userFeeling == "cannot concentrate") or (userFeeling == "sick") or (userFeeling == "nauseous")):
-            speak_output = "Vitamin B helps with lack of concentration and fatigue. "
+            speak_output = "Vitamin B helps with ... "
         elif (userFeeling == "headache"):
-            speak_output = "Vitamin C helps you to get rid of a headache. "
+            speak_output = "Vitamin C is useful for ... "
         elif (userFeeling == "back pain"):
-            speak_output = "Vitamin D is useful for back pain. "
+            speak_output = "Vitamin D is useful for ... "
         elif (userFeeling == "difficulties walking" or (userFeeling == "muscle weakness") or (
                 userFeeling == "like I have circulatory problems")):
-            speak_output = "Vitamin E is useful for muscle weakness, difficulties of walking and helps with circulatory problems. "
+            speak_output = "Vitamin E is ... "
         elif (userFeeling == "bruises" or (userFeeling == "my nose bleeds")):
-            speak_output = "Vitamin K useful for bruises and nose bleeding."
+            speak_output = "Vitamin K is..."
         else:
             speak_output = "Sorry, there was a problem. Please restart the skill."
 
@@ -1056,7 +1089,7 @@ class FoodFunFacts(AbstractRequestHandler):
     def handle(self, handler_input):
 
         # Generates a random number from 0 to 10
-        value = random.randint(0, 13)
+        value = random.randint(0, 10)
 
         if (value == 0):
             speak_output = (
@@ -1101,23 +1134,12 @@ class FoodFunFacts(AbstractRequestHandler):
                 " Once they’re back at the hive, they regurgitate the nectar into the hive.")
         elif (value == 9):
             speak_output = (
-                "French fries originated in Belgium, not France!"
+                " French fries originated in Belgium, not France!"
                 " They are only called French fries because they are French cut.")
         elif (value == 10):
             speak_output = (
                 "Strawberries are not berries."
                 " Technically, berries only have seeds on the inside, a rule which is obviously broken by strawberries!")
-        elif (value == 11):
-            speak_output = (
-                "Broccoli contains more proteins than steak.")
-        elif (value == 12):
-            speak_output = (
-                "Apples give you more energy than coffee.")
-        elif (value == 13):
-            speak_output = (
-                "Bananas are actually classified as berries and strawberries aren't."
-                " Bananas can also float in water."
-                " Humans share 50% of their DNA with Bananas!")
         else:
             print("Sorry, I think there's some kind of issue. Please retry.")
 
@@ -1126,7 +1148,8 @@ class FoodFunFacts(AbstractRequestHandler):
         )
 
 
-sb = SkillBuilder()
+# sb = SkillBuilder()
+sb = CustomSkillBuilder(persistence_adapter=dynamodb_adapter)
 
 sb.add_request_handler(LaunchRequestHandler())
 sb.add_request_handler(HelpIntentHandler())
