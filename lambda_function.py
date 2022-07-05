@@ -173,7 +173,7 @@ class FallbackIntentHandler(AbstractRequestHandler):
 
     def handle(self, handler_input):
         logger.info("In FallbackIntentHandler")
-        speech = "Hmm, I'm not sure. You can say Hello or Help. What would you like to do?"
+        speech = "Unfortunately, that did not work. Retry using a different phrase or use an option from 1 to 11."
         reprompt = "I didn't catch that. What can I help you with?"
 
         return handler_input.response_builder.speak(speech).ask(reprompt).response
@@ -419,6 +419,16 @@ class BMICalculator(AbstractRequestHandler):
         persistent_attributes["user_bmi"] = str(round(step2, 2))
         handler_input.attributes_manager.save_persistent_attributes()
 
+        # Store the data in logs
+        f = open("/tmp/profile.txt", "a")
+        f.write("BMI: " + str(round(step2, 2)) + ". ")
+        f.close()
+
+        # Store user's BMI in DB
+        persistent_attributes = handler_input.attributes_manager.persistent_attributes
+        persistent_attributes["user_bmi"] = str(round(step2, 2))
+        handler_input.attributes_manager.save_persistent_attributes()
+
         if (step2 <= 18.5):
             speak_output = "Your BMI is " + str(round(step2,
                                                       2)) + " and you are slightly underweight.  Do you want to know what your daily basal metabolic rate is?"
@@ -437,6 +447,7 @@ class BMICalculator(AbstractRequestHandler):
         else:
             speak_output = "Your BMI is " + str(round(step2,
                                                       2)) + " and you have third-degree obesity. Do you want to know what your daily basal metabolic rate is?"
+
         return (
             handler_input.response_builder
                 .speak(speak_output)
@@ -461,38 +472,42 @@ class CaloriesCalculator(AbstractRequestHandler):
         calcWeight = handler_input.attributes_manager.session_attributes["userweight"]
         calcHeight = handler_input.attributes_manager.session_attributes["userheight"]
 
-        formulawomen = float(655.1 + (9.6 * float(calcWeight) + (1.8 * float(calcHeight) - (4.7 * float(calcAge)))))
-        roundCaloriesWomen = round(formulawomen, 2)
         formulamen = float(66.47 + (13.7 * float(calcWeight) + (5 * float(calcHeight) - (6.8 * float(calcAge)))))
         roundCaloriesMen = round(formulamen, 2)
+
+        formulawomen = float(655.1 + (9.6 * float(calcWeight) + (1.8 * float(calcHeight) - (4.7 * float(calcAge)))))
+        roundCaloriesWomen = round(formulawomen, 2)
 
         handler_input.attributes_manager.session_attributes["caloriesMen"] = roundCaloriesMen
         handler_input.attributes_manager.session_attributes["caloriesWomen"] = roundCaloriesWomen
 
-        if (userGender == "Mann"):
+        if (userGender == "man" or userGender == "a male" or userGender == "a man" or userGender == "male"):
             f = open("/tmp/profile.txt", "a")
             f.write("Daily basal metabolic rate :" + str(roundCaloriesMen) + ".")
             f.close()
 
             # Store user's Calories in DB (male)
-            persistent_attributes = handler_input.attributes_manager.persistent_attributes
-            persistent_attributes["user_calories"] = str(roundCaloriesMen)
-            handler_input.attributes_manager.save_persistent_attributes()
+            # persistent_attributes = handler_input.attributes_manager.persistent_attributes
+            # persistent_attributes["user_calories"] = str(roundCaloriesMen)
+            # handler_input.attributes_manager.save_persistent_attributes()
 
             speak_output = "Your daily basal metabolic rate is about " + str(
                 roundCaloriesMen) + " calories. Do you want to lose, gain or maintain your weight?"
-        else:
+        elif (
+                userGender == "woman" or userGender == "female" or userGender == "girl" or userGender == "a woman" or userGender == "a girl"):
             f = open("/tmp/profile.txt", "a")
             f.write("Daily basal metabolic rate :" + str(roundCaloriesWomen) + ". ")
             f.close()
 
             # Store user's Calories in DB (female)
-            persistent_attributes = handler_input.attributes_manager.persistent_attributes
-            persistent_attributes["user_calories"] = str(roundCaloriesWomen)
-            handler_input.attributes_manager.save_persistent_attributes()
+            # persistent_attributes = handler_input.attributes_manager.persistent_attributes
+            # persistent_attributes["user_calories"] = str(roundCaloriesWomen)
+            # handler_input.attributes_manager.save_persistent_attributes()
 
             speak_output = "Your daily basal metabolic rate is about " + str(
                 roundCaloriesWomen) + " calories. Do you want to lose, gain or maintain your weight?"
+        else:
+            speak_output = "I could not identify your gender, sorry. Ask me to calculate your calories again, and I'll retry."
 
         return (
             handler_input.response_builder
@@ -1179,8 +1194,40 @@ class LoadProfile(AbstractRequestHandler):
             # Read user's name from the DB.
             user_name = persistent_attributes['user_name']
             speak_output = "I have loaded the profile of " + str(
-                user_name) + ". You can calculate your BMI or calories now directly."
+                user_name) + ". You can calculate your BMI now directly."
             reprompt = "Test reprompt"
+        except:
+            speak_output = "Unfortunately, this did not work."
+
+        # persistent_attributes = handler_input.attributes_manager.persistent_attributes
+        # speak_output = "I have loaded the following profile. Name: " + persistent_attributes["user_name"] + " . Age: " + persistent_attributes["age"] + " ."
+
+        return (
+            handler_input.response_builder
+                .speak(speak_output)
+                .ask(speak_output)
+                .response
+        )
+
+
+# Option 11
+class BMICalculatorProfileLoaded(AbstractRequestHandler):
+    def can_handle(self, handler_input):
+        return ask_utils.is_intent_name("BMICalculatorProfileLoaded")(handler_input)
+
+    def handle(self, handler_input):
+        persistent_attributes = handler_input.attributes_manager.persistent_attributes
+
+        try:
+            # Read user's name from the DB.
+            user_name = persistent_attributes['user_name']
+            user_weight = persistent_attributes['user_weight']
+            user_height = persistent_attributes['user_height']
+
+            step1 = (float(user_height) * float(user_height)) / 10000  # (160*160)/10000 = 2.56
+            step2 = (float(user_weight) / step1)  # 55 / 2.56 = 21.5
+
+            speak_output = "The BMI of " + str(user_name) + " is: " + str(round(step2, 2))
         except:
             speak_output = "Unfortunately, this did not work."
 
@@ -1233,6 +1280,7 @@ sb.add_request_handler(ConvertNutrientsInfo())  # Option 9
 sb.add_request_handler(ConvertNutrientsUserInput())  # Option 9
 sb.add_request_handler(FoodFunFacts())  # Option 10
 sb.add_request_handler(LoadProfile())  # Option 11
+sb.add_request_handler(BMICalculatorProfileLoaded())  # Option 11
 
 # IntentReflectorHandler should be the last one, so it doesn't override your custom intent handlers
 sb.add_request_handler(IntentReflectorHandler())
