@@ -89,7 +89,7 @@ class FoodInfoHandler(AbstractRequestHandler):
         return ask_utils.is_intent_name("FoodInfoIntent")(handler_input)
 
     def handle(self, handler_input):
-        speak_output = "Ask me how many calories certain food has! Type, for instance, 'How many calories does a banana have?'"
+        speak_output = "Ask me how many calories certain food has! Ask, for instance, 'How many calories does a banana have?'"
 
         return (
             handler_input.response_builder
@@ -229,7 +229,7 @@ class CatchAllExceptionHandler(AbstractExceptionHandler):
         # type: (HandlerInput, Exception) -> Response
         logger.error(exception, exc_info=True)
 
-        speak_output = "Sorry, that didn't work. Try using an option from 1 to 11."
+        speak_output = "Sorry, that didn't work. Retry or use an option from 1 to 11."
 
         return (
             handler_input.response_builder
@@ -245,7 +245,7 @@ class ProfileHandler(AbstractRequestHandler):
         return ask_utils.is_intent_name("CreateProfile")(handler_input)
 
     def handle(self, handler_input):
-        speak_output = "Please state your name. Type, for instance, 'My name is Alexa.'"
+        speak_output = "Please state your name. Say, for instance, 'My name is Alexa.'"
 
         return (
             handler_input.response_builder
@@ -1174,8 +1174,18 @@ class LoadProfile(AbstractRequestHandler):
 
     def handle(self, handler_input):
         persistent_attributes = handler_input.attributes_manager.persistent_attributes
-        speak_output = "I have loaded the following profile. Name: " + persistent_attributes["user_name"] + " . Age: " + \
-                       persistent_attributes["age"] + " ."
+
+        try:
+            # Read user's name from the DB.
+            user_name = persistent_attributes['user_name']
+            speak_output = "I have loaded the profile of " + str(
+                user_name) + ". You can calculate your BMI or calories now directly."
+            reprompt = "Test reprompt"
+        except:
+            speak_output = "Unfortunately, this did not work."
+
+        # persistent_attributes = handler_input.attributes_manager.persistent_attributes
+        # speak_output = "I have loaded the following profile. Name: " + persistent_attributes["user_name"] + " . Age: " + persistent_attributes["age"] + " ."
 
         return (
             handler_input.response_builder
