@@ -74,7 +74,7 @@ class FoodInfoHandler(AbstractRequestHandler):
         return ask_utils.is_intent_name("FoodInfoIntent")(handler_input)
 
     def handle(self, handler_input):
-        speak_output = "Ask me how many calories certain food has! Type, for instance, 'How many calories does a banana have?'"
+        speak_output = "Ask me how many calories certain food has! Say, for instance, 'How many calories does a banana have?'"
 
         return (
             handler_input.response_builder
@@ -158,7 +158,7 @@ class FallbackIntentHandler(AbstractRequestHandler):
 
     def handle(self, handler_input):
         logger.info("In FallbackIntentHandler")
-        speech = "Hmm, I'm not sure. You can say Hello or Help. What would you like to do?"
+        speech = "Sorry, I didn't understand that. Try again or choose another option."
         reprompt = "I didn't catch that. What can I help you with?"
 
         return handler_input.response_builder.speak(speech).ask(reprompt).response
@@ -244,7 +244,7 @@ class ProfileHandler(AbstractRequestHandler):
         return ask_utils.is_intent_name("CreateProfile")(handler_input)
 
     def handle(self, handler_input):
-        speak_output = "Please state your name. Type, for instance, 'My name is Alexa.'"
+        speak_output = "Please state your name. Say, for instance, 'My name is Alexa.'"
 
         return (
             handler_input.response_builder
@@ -373,7 +373,7 @@ class HeightHandler(AbstractRequestHandler):
 # Step 2: (Weight)/2.56 = 21.5
 class BMICalculator(AbstractRequestHandler):
     def can_handle(self, handler_input):
-        return ask_utils.is_intent_name("GenderHandler")(handler_input)
+        return ask_utils.is_intent_name("BMICalculator")(handler_input)
 
     def handle(self, handler_input):
         slots = handler_input.request_envelope.request.intent.slots
@@ -426,7 +426,7 @@ class BMICalculator(AbstractRequestHandler):
 class CaloriesCalculator(AbstractRequestHandler):
     def can_handle(self, handler_input):
         # type: (HandlerInput) -> bool
-        return ask_utils.is_intent_name("CaloriesHandler")(handler_input)
+        return ask_utils.is_intent_name("CaloriesCalculator")(handler_input)
 
     def handle(self, handler_input):
         userGender = handler_input.attributes_manager.session_attributes["gender"]
@@ -444,7 +444,7 @@ class CaloriesCalculator(AbstractRequestHandler):
 
         if (userGender == "Mann"):
             f = open("/tmp/profile.txt", "a")
-            f.write("Daily basal metabolic rate :" + str(roundCaloriesMen) + ".")
+            f.write("Daily basal metabolic rate: " + str(roundCaloriesMen) + ".")
             f.close()
             speak_output = "Your daily basal metabolic rate is about " + str(
                 roundCaloriesMen) + " calories. Do you want to lose, gain or maintain your weight?"
@@ -850,19 +850,19 @@ class VitaminBenefits(AbstractRequestHandler):
         userFeeling = handler_input.attributes_manager.session_attributes["feeling"]
 
         if (userFeeling == "like I have dry eyes") or (userFeeling == "dry eyes"):
-            speak_output = "Vitamin A helps with ..."
+            speak_output = "Vitamin A helps with an increasing visual impairment, growth retardation and brittle nails."
         elif (userFeeling == "tired" or (userFeeling == "restless") or (userFeeling == "like I cannot concentrate") or (
                 userFeeling == "cannot concentrate") or (userFeeling == "sick") or (userFeeling == "nauseous")):
-            speak_output = "Vitamin B helps with ... "
+            speak_output = "Vitamin B helps with lack of concentration and fatigue. "
         elif (userFeeling == "headache"):
-            speak_output = "Vitamin C is useful for ... "
+            speak_output = "Vitamin C helps you to get rid of a headache. "
         elif (userFeeling == "back pain"):
-            speak_output = "Vitamin D is useful for ... "
+            speak_output = "Vitamin D is useful for back pain. "
         elif (userFeeling == "difficulties walking" or (userFeeling == "muscle weakness") or (
                 userFeeling == "like I have circulatory problems")):
-            speak_output = "Vitamin E is ... "
+            speak_output = "Vitamin E is useful for muscle weakness, difficulties of walking and helps with circulatory problems. "
         elif (userFeeling == "bruises" or (userFeeling == "my nose bleeds")):
-            speak_output = "Vitamin K is..."
+            speak_output = "Vitamin K useful for bruises and nose bleeding."
         else:
             speak_output = "Sorry, there was a problem. Please restart the skill."
 
@@ -1056,7 +1056,7 @@ class FoodFunFacts(AbstractRequestHandler):
     def handle(self, handler_input):
 
         # Generates a random number from 0 to 10
-        value = random.randint(0, 10)
+        value = random.randint(0, 13)
 
         if (value == 0):
             speak_output = (
@@ -1101,12 +1101,23 @@ class FoodFunFacts(AbstractRequestHandler):
                 " Once they’re back at the hive, they regurgitate the nectar into the hive.")
         elif (value == 9):
             speak_output = (
-                " French fries originated in Belgium, not France!"
+                "French fries originated in Belgium, not France!"
                 " They are only called French fries because they are French cut.")
         elif (value == 10):
             speak_output = (
                 "Strawberries are not berries."
                 " Technically, berries only have seeds on the inside, a rule which is obviously broken by strawberries!")
+        elif (value == 11):
+            speak_output = (
+                "Broccoli contains more proteins than steak.")
+        elif (value == 12):
+            speak_output = (
+                "Apples give you more energy than coffee.")
+        elif (value == 13):
+            speak_output = (
+                "Bananas are actually classified as berries and strawberries aren't."
+                " Bananas can also float in water."
+                " Humans share 50% of their DNA with Bananas!")
         else:
             print("Sorry, I think there's some kind of issue. Please retry.")
 
