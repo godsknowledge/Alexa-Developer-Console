@@ -57,8 +57,8 @@ class LaunchRequestHandler(AbstractRequestHandler):
             " - 7. Autocomplete Food Ingredients"  # done
             " - 8. Get Nutrient Information"  # done
             " - 9. Convert Nutrients Into Calories"  # done
-            " - 10. Food Fun Facts"  # done
-            " - 11. Load Profile"  # not fully complete
+            " - 10. Food Fun Facts" # done
+            " - 11. Load Profile" # multi profile support not done
             " - 12. Delete Session Logs and Profile"  # done
         )  # done
 
@@ -174,7 +174,7 @@ class FallbackIntentHandler(AbstractRequestHandler):
 
     def handle(self, handler_input):
         logger.info("In FallbackIntentHandler")
-        speech = "Unfortunately, that did not work. Retry using a different phrase or use an option from 1 to 12."
+        speech = "Unfortunately, that did not work. Retry using a different phrase or use an option from 1 to 11."
         reprompt = "I didn't catch that. What can I help you with?"
 
         return handler_input.response_builder.speak(speech).ask(reprompt).response
@@ -230,7 +230,7 @@ class CatchAllExceptionHandler(AbstractExceptionHandler):
         # type: (HandlerInput, Exception) -> Response
         logger.error(exception, exc_info=True)
 
-        speak_output = "Sorry, that didn't work. Retry or use an option from 1 to 12."
+        speak_output = "Sorry, that didn't work. Retry or use an option from 1 to 11."
 
         return (
             handler_input.response_builder
@@ -1232,6 +1232,9 @@ class BMICalculatorProfileLoaded(AbstractRequestHandler):
         except:
             speak_output = "Unfortunately, this did not work."
 
+        # persistent_attributes = handler_input.attributes_manager.persistent_attributes
+        # speak_output = "I have loaded the following profile. Name: " + persistent_attributes["user_name"] + " . Age: " + persistent_attributes["age"] + " ."
+
         return (
             handler_input.response_builder
                 .speak(speak_output)
@@ -1254,9 +1257,7 @@ class DeleteProfile(AbstractRequestHandler):
         f.truncate(0)
         f.close()
 
-        speak_output = "I have deleted the session logs. Which profile would you like to delete? I have stored the profile(s) of " + str(
-            user_name)
-        "."
+        speak_output = "I have deleted the session logs. Which profile would you like to delete? I have stored the profile(s) of " + str(user_name) + "."
 
         return (
             handler_input.response_builder
@@ -1278,19 +1279,15 @@ class DeleteProfileUserInput(AbstractRequestHandler):
         user = slots["user"].value
 
         try:
-            # # Delete all attributes from the dynamo database
+            # Delete all attributes from the dynamo database
             handler_input.attributes_manager.delete_persistent_attributes()
             speak_output = "I have deleted the data for " + str(user) + "."
 
         except:
-            speak_output = "Unfortunately, I could not delete the data of " + user
-            " . Please retry by saying 'Delete username'."
+            speak_output = "Unfortunately, I could not delete the data of " + user + " . Please retry by saying 'Delete username'."
 
         return (
-            handler_input.response_builder
-                .speak(speak_output)
-                .ask(speak_output)
-                .response
+            handler_input.response_builder.response
         )
 
 
@@ -1336,9 +1333,9 @@ sb.add_request_handler(BMICalculatorProfileLoaded())  # Option 11
 sb.add_request_handler(DeleteProfile())  # Option 12
 sb.add_request_handler(DeleteProfileUserInput())  # Option 12
 
+
 # IntentReflectorHandler should be the last one, so it doesn't override your custom intent handlers
 sb.add_request_handler(IntentReflectorHandler())
-
 sb.add_exception_handler(CatchAllExceptionHandler())
 
 lambda_handler = sb.lambda_handler()
