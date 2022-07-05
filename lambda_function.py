@@ -50,14 +50,16 @@ class LaunchRequestHandler(AbstractRequestHandler):
             " You have multiple options:"
             " - 1. Create Profile"  # done
             " - 2. Search Food Information"  # done
-            " - 3. Get Profile Logs"  # done
+            " - 3. Get Session Logs"  # done
             " - 4. Calculate Food Intake"  # done
             " - 5. Dish Suggestions With Caloric Range"  # done
-            " - 6. Handle Vitamin Deficiency"  # Ayse must enter benefits of vitamins
+            " - 6. Handle Vitamin Deficiency"  # done
             " - 7. Autocomplete Food Ingredients"  # done
             " - 8. Get Nutrient Information"  # done
             " - 9. Convert Nutrients Into Calories"  # done
-            " - 10. Food Fun Facts")  # Ayse must add more food fun facts
+            " - 10. Food Fun Facts"
+            " - 11. Load Profile"
+        )  # done
 
         # If the user either does not reply to the welcome message or says something
         # that is not understood, they will be prompted again with this text.
@@ -406,43 +408,49 @@ class HeightHandler(AbstractRequestHandler):
 # Step 2: (Weight)/2.56 = 21.5
 class BMICalculator(AbstractRequestHandler):
     def can_handle(self, handler_input):
-        return ask_utils.is_intent_name("GenderHandler")(handler_input)
+        return ask_utils.is_intent_name("BMICalculator")(handler_input)
 
     def handle(self, handler_input):
         slots = handler_input.request_envelope.request.intent.slots
-        userGender = str(slots["gender"].value)
+        userGender = slots["gender"].value
         handler_input.attributes_manager.session_attributes["gender"] = userGender
 
         calcWeight = handler_input.attributes_manager.session_attributes["userweight"]
         calcHeight = handler_input.attributes_manager.session_attributes["userheight"]
 
-        speak_output = "calcWeight: " + str(calcWeight) + " and calcHeight: " + str(calcHeight)
         step1 = (float(calcHeight) * float(calcHeight)) / 10000  # (160*160)/10000 = 2.56
         step2 = (float(calcWeight) / step1)  # 55 / 2.56 = 21.5
+
+        speak_output = "calcWeight: " + str(calcWeight) + " and calcHeight: " + str(calcHeight) + " step2: " + str(
+            round(step2, 2))
 
         f = open("/tmp/profile.txt", "a")
         f.write("BMI: " + str(round(step2, 2)) + ". ")
         f.close()
 
+        # Store user's BMI in DB
+        persistent_attributes = handler_input.attributes_manager.persistent_attributes
+        persistent_attributes["user_bmi"] = str(round(step2, 2))
+        handler_input.attributes_manager.save_persistent_attributes()
+
         if (step2 <= 18.5):
             speak_output = "Your BMI is " + str(round(step2,
                                                       2)) + " and you are slightly underweight.  Do you want to know what your daily basal metabolic rate is?"
-        elif (step2 > 18.5 or step2 <= 24.9):
+        elif (step2 > 18.5 or round(step2, 2) <= 24.9):
             speak_output = "Your BMI is " + str(round(step2,
                                                       2)) + " and your weight is in the normal range. Do you want to know what your daily basal metabolic rate is?"
-        elif (step2 >= 25 or step2 <= 29.9):
+        elif (step2 >= 25 or round(step2, 2) <= 29.9):
             speak_output = "Your BMI is " + str(round(step2,
                                                       2)) + " and you are overweight. Do you want to know what your daily basal metabolic rate is?"
-        elif (step2 >= 30 or step2 <= 34.9):
+        elif (step2 >= 30 or round(step2, 2) <= 34.9):
             speak_output = "Your BMI is " + str(round(step2,
                                                       2)) + " and you are very overweight.  Do you want to know what your daily basal metabolic rate is?"
-        elif (step2 >= 35 or step2 <= 39.9):
+        elif (step2 >= 35 or round(step2, 2) <= 39.9):
             speak_output = "Your BMI is " + str(round(step2,
                                                       2)) + " and you have second-degree obesity. Do you want to know what your daily basal metabolic rate is?"
         else:
             speak_output = "Your BMI is " + str(round(step2,
                                                       2)) + " and you have third-degree obesity. Do you want to know what your daily basal metabolic rate is?"
-
         return (
             handler_input.response_builder
                 .speak(speak_output)
@@ -459,7 +467,7 @@ class BMICalculator(AbstractRequestHandler):
 class CaloriesCalculator(AbstractRequestHandler):
     def can_handle(self, handler_input):
         # type: (HandlerInput) -> bool
-        return ask_utils.is_intent_name("CaloriesHandler")(handler_input)
+        return ask_utils.is_intent_name("CaloriesCalculator")(handler_input)
 
     def handle(self, handler_input):
         userGender = handler_input.attributes_manager.session_attributes["gender"]
@@ -479,12 +487,24 @@ class CaloriesCalculator(AbstractRequestHandler):
             f = open("/tmp/profile.txt", "a")
             f.write("Daily basal metabolic rate :" + str(roundCaloriesMen) + ".")
             f.close()
+
+            # Store user's Calories in DB (male)
+            persistent_attributes = handler_input.attributes_manager.persistent_attributes
+            persistent_attributes["user_calories"] = str(roundCaloriesMen)
+            handler_input.attributes_manager.save_persistent_attributes()
+
             speak_output = "Your daily basal metabolic rate is about " + str(
                 roundCaloriesMen) + " calories. Do you want to lose, gain or maintain your weight?"
         else:
             f = open("/tmp/profile.txt", "a")
             f.write("Daily basal metabolic rate :" + str(roundCaloriesWomen) + ". ")
             f.close()
+
+            # Store user's Calories in DB (female)
+            persistent_attributes = handler_input.attributes_manager.persistent_attributes
+            persistent_attributes["user_calories"] = str(roundCaloriesWomen)
+            handler_input.attributes_manager.save_persistent_attributes()
+
             speak_output = "Your daily basal metabolic rate is about " + str(
                 roundCaloriesWomen) + " calories. Do you want to lose, gain or maintain your weight?"
 
@@ -498,7 +518,7 @@ class CaloriesCalculator(AbstractRequestHandler):
 
 
 # Option 1: Create Profile
-class GainWeight(AbstractRequestHandler):
+class GainWeightHandler(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("GainWeightHandler")(handler_input)
 
@@ -529,7 +549,7 @@ class GainWeight(AbstractRequestHandler):
 
 
 # Option 1: Create Profile
-class LoseWeight(AbstractRequestHandler):
+class LoseWeightHandler(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return ask_utils.is_intent_name("LoseWeightHandler")(handler_input)
 
@@ -581,18 +601,18 @@ class MaintainWeight(AbstractRequestHandler):
         )
 
 
-# Option 3: Get Profile Logs
-class ProfileLogs(AbstractRequestHandler):
+# Option 3: Get Session Logs
+class SessionLogs(AbstractRequestHandler):
     def can_handle(self, handler_input):
         # type: (HandlerInput) -> bool
-        return ask_utils.is_intent_name("ProfileLogs")(handler_input)
+        return ask_utils.is_intent_name("SessionLogs")(handler_input)
 
     def handle(self, handler_input):
         f = open("/tmp/profile.txt", "r")
         readFile = (f.read())
         f.close()
 
-        speak_output = "I have stored the following logs: " + readFile
+        speak_output = "I have stored the following logs in this session: " + readFile
 
         return (
             handler_input.response_builder
@@ -677,6 +697,14 @@ class CalculateFoodIntakeSum(AbstractRequestHandler):
             round(session_attr["foodFatSum"], 2)) + " g fat - " + str(
             round(session_attr["foodProteinsSum"], 2)) + " g proteins. ")
         f.close()
+
+        # Store user's food intake in DB (female)
+        persistent_attributes = handler_input.attributes_manager.persistent_attributes
+        persistent_attributes["user_foodintakeCalories"] = str(round(session_attr["foodCaloriesSum"], 2))
+        persistent_attributes["user_foodintakeCarbohydrates"] = str(round(session_attr["foodCarbohydratesSum"], 2))
+        persistent_attributes["user_foodintakeFat"] = str(round(session_attr["foodFatSum"], 2))
+        persistent_attributes["user_foodintakeProteins"] = str(round(session_attr["foodProteinsSum"], 2))
+        handler_input.attributes_manager.save_persistent_attributes()
 
         speak_output = "Total: " + str(round(session_attr["foodCaloriesSum"], 2)) + " calories. Carbohydrates:  " + str(
             round(session_attr["foodCarbohydratesSum"], 2)) + " grams. Fats: " + str(
@@ -845,6 +873,10 @@ class VitaminDeficiencyUserInput(AbstractRequestHandler):
         f = open("/tmp/profile.txt", "a")
         f.write("Feeling: " + str(feeling) + " . ")
         f.close()
+
+        # Store user feeling in database
+        persistent_attributes["user_feeling"] = str(feeling)
+        handler_input.attributes_manager.save_persistent_attributes()
 
         # Store the feeling of the user in a session attribute
         handler_input.attributes_manager.session_attributes["feeling"] = feeling
@@ -1163,12 +1195,12 @@ sb.add_request_handler(WeightHandler())  # Option 1
 sb.add_request_handler(HeightHandler())  # Option 1
 sb.add_request_handler(BMICalculator())  # Option 1
 sb.add_request_handler(CaloriesCalculator())  # Option 1
-sb.add_request_handler(LoseWeight())  # Option 1
-sb.add_request_handler(GainWeight())  # Option 1
+sb.add_request_handler(LoseWeightHandler())  # Option 1
+sb.add_request_handler(GainWeightHandler())  # Option 1
 sb.add_request_handler(MaintainWeight())  # Option 1
 sb.add_request_handler(FoodInfoHandler())  # Option 2
 sb.add_request_handler(FoodRequestHandler())  # Option 2
-sb.add_request_handler(ProfileLogs())  # Option 3
+sb.add_request_handler(SessionLogs())  # Option 3
 sb.add_request_handler(FoodIntakeInfoHandler())  # Option 4
 sb.add_request_handler(CalculateFoodIntake())  # Option 4
 sb.add_request_handler(CalculateFoodIntakeSum())  # Option 4
