@@ -57,8 +57,9 @@ class LaunchRequestHandler(AbstractRequestHandler):
             " - 7. Autocomplete Food Ingredients"  # done
             " - 8. Get Nutrient Information"  # done
             " - 9. Convert Nutrients Into Calories"  # done
-            " - 10. Food Fun Facts"
-            " - 11. Load Profile"
+            " - 10. Food Fun Facts"  # done
+            " - 11. Load Profile"  # not fully complete
+            " - 12. Delete Session Logs and Profile"  # done
         )  # done
 
         # If the user either does not reply to the welcome message or says something
@@ -173,7 +174,7 @@ class FallbackIntentHandler(AbstractRequestHandler):
 
     def handle(self, handler_input):
         logger.info("In FallbackIntentHandler")
-        speech = "Unfortunately, that did not work. Retry using a different phrase or use an option from 1 to 11."
+        speech = "Unfortunately, that did not work. Retry using a different phrase or use an option from 1 to 12."
         reprompt = "I didn't catch that. What can I help you with?"
 
         return handler_input.response_builder.speak(speech).ask(reprompt).response
@@ -229,7 +230,7 @@ class CatchAllExceptionHandler(AbstractExceptionHandler):
         # type: (HandlerInput, Exception) -> Response
         logger.error(exception, exc_info=True)
 
-        speak_output = "Sorry, that didn't work. Retry or use an option from 1 to 11."
+        speak_output = "Sorry, that didn't work. Retry or use an option from 1 to 12."
 
         return (
             handler_input.response_builder
@@ -1231,8 +1232,59 @@ class BMICalculatorProfileLoaded(AbstractRequestHandler):
         except:
             speak_output = "Unfortunately, this did not work."
 
-        # persistent_attributes = handler_input.attributes_manager.persistent_attributes
-        # speak_output = "I have loaded the following profile. Name: " + persistent_attributes["user_name"] + " . Age: " + persistent_attributes["age"] + " ."
+        return (
+            handler_input.response_builder
+                .speak(speak_output)
+                .ask(speak_output)
+                .response
+        )
+
+
+# Option 12
+class DeleteProfile(AbstractRequestHandler):
+    def can_handle(self, handler_input):
+        return ask_utils.is_intent_name("DeleteProfile")(handler_input)
+
+    def handle(self, handler_input):
+        persistent_attributes = handler_input.attributes_manager.persistent_attributes
+        user_name = persistent_attributes['user_name']
+
+        # Clear the contents of the text file
+        f = open("/tmp/profile.txt", "a")
+        f.truncate(0)
+        f.close()
+
+        speak_output = "I have deleted the session logs. Which profile would you like to delete? I have stored the profile(s) of " + str(
+            user_name)
+        "."
+
+        return (
+            handler_input.response_builder
+                .speak(speak_output)
+                .ask(speak_output)
+                .response
+        )
+
+
+# Option 12
+class DeleteProfileUserInput(AbstractRequestHandler):
+    def can_handle(self, handler_input):
+        return ask_utils.is_intent_name("DeleteProfileUserInput")(handler_input)
+
+    def handle(self, handler_input):
+        persistent_attributes = handler_input.attributes_manager.persistent_attributes
+
+        slots = handler_input.request_envelope.request.intent.slots
+        user = slots["user"].value
+
+        try:
+            # # Delete all attributes from the dynamo database
+            handler_input.attributes_manager.delete_persistent_attributes()
+            speak_output = "I have deleted the data for " + str(user) + "."
+
+        except:
+            speak_output = "Unfortunately, I could not delete the data of " + user
+            " . Please retry by saying 'Delete username'."
 
         return (
             handler_input.response_builder
@@ -1281,6 +1333,8 @@ sb.add_request_handler(ConvertNutrientsUserInput())  # Option 9
 sb.add_request_handler(FoodFunFacts())  # Option 10
 sb.add_request_handler(LoadProfile())  # Option 11
 sb.add_request_handler(BMICalculatorProfileLoaded())  # Option 11
+sb.add_request_handler(DeleteProfile())  # Option 12
+sb.add_request_handler(DeleteProfileUserInput())  # Option 12
 
 # IntentReflectorHandler should be the last one, so it doesn't override your custom intent handlers
 sb.add_request_handler(IntentReflectorHandler())
