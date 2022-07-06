@@ -57,8 +57,8 @@ class LaunchRequestHandler(AbstractRequestHandler):
             " - 7. Autocomplete Food Ingredients"  # done
             " - 8. Get Nutrient Information"  # done
             " - 9. Convert Nutrients Into Calories"  # done
-            " - 10. Food Fun Facts" # done
-            " - 11. Load Profile" # multi profile support not done
+            " - 10. Food Fun Facts"  # done
+            " - 11. Load Profile"  # multi profile support not done
             " - 12. Delete Session Logs and Profile"  # done
         )  # done
 
@@ -631,7 +631,7 @@ class FoodIntakeInfoHandler(AbstractRequestHandler):
         return ask_utils.is_intent_name("FoodIntakeInfoHandler")(handler_input)
 
     def handle(self, handler_input):
-        speak_output = "Tell me what you have eaten today or calculate the nutritional values of other food. Say, for example, 'I have eaten apple today'."
+        speak_output = "Tell me what you have eaten today or calculate the nutritional values of other food. Say, for example, 'I have eaten (300 grasm of) rice today'."
 
         return (
             handler_input.response_builder
@@ -649,6 +649,7 @@ class CalculateFoodIntake(AbstractRequestHandler):
     def handle(self, handler_input):
         slots = handler_input.request_envelope.request.intent.slots
         foodtype = slots["foodtype"].value
+        foodamount = slots["foodamount"].value
         create_foodtype_url = "https://api.edamam.com/api/food-database/v2/parser?app_id=cf568ffc&app_key=4ab5d97c9657f25c95983fd710a96627&ingr=" + foodtype + "&nutrition-type=cooking"
 
         # Make an API request to get the nutrients of food
@@ -659,6 +660,17 @@ class CalculateFoodIntake(AbstractRequestHandler):
         food_carbohydrates = data['hints'][0]['food']['nutrients']['CHOCDF']  # Amount of Carbohydrates
         food_protein = data['hints'][0]['food']['nutrients']['PROCNT']  # Amount of Protein
         food_fat = data['hints'][0]['food']['nutrients']['FAT']  # Amount of Fat
+
+        # Calculates the values if the user has specified an amount, f.ex. 300 grams of rice
+        if (foodamount != ""):
+            # User has eaten a banana
+            # a banana has 89 Calories
+            # user has eaten 200 grams of banana
+            # total calories: (grams/100) * food_calories = (200/100) * 89 = 178 calories
+            food_calories = (int(foodamount) / 100) * food_calories
+            food_carbohydrates = (int(foodamount) / 100) * food_carbohydrates
+            food_protein = (int(foodamount) / 100) * food_protein
+            food_fat = (int(foodamount) / 100) * food_fat
 
         session_attr = handler_input.attributes_manager.session_attributes
         session_attr["food_calories"] = food_calories
@@ -918,19 +930,19 @@ class VitaminBenefits(AbstractRequestHandler):
         userFeeling = handler_input.attributes_manager.session_attributes["feeling"]
 
         if (userFeeling == "like I have dry eyes") or (userFeeling == "dry eyes"):
-            speak_output = "Vitamin A helps with ..."
+            speak_output = "Vitamin A helps with an increasing visual impairment, growth retardation and brittle nails."
         elif (userFeeling == "tired" or (userFeeling == "restless") or (userFeeling == "like I cannot concentrate") or (
                 userFeeling == "cannot concentrate") or (userFeeling == "sick") or (userFeeling == "nauseous")):
-            speak_output = "Vitamin B helps with ... "
+            speak_output = "Vitamin B helps with lack of concentration and fatigue."
         elif (userFeeling == "headache"):
-            speak_output = "Vitamin C is useful for ... "
+            speak_output = "Vitamin C might help you with getting rid of your headache. "
         elif (userFeeling == "back pain"):
-            speak_output = "Vitamin D is useful for ... "
+            speak_output = "Vitamin D can be useful to prevent back pain. "
         elif (userFeeling == "difficulties walking" or (userFeeling == "muscle weakness") or (
                 userFeeling == "like I have circulatory problems")):
-            speak_output = "Vitamin E is ... "
+            speak_output = "Vitamin E is useful for muscle weakness, difficulties of walking and helps with circulatory problems. "
         elif (userFeeling == "bruises" or (userFeeling == "my nose bleeds")):
-            speak_output = "Vitamin K is..."
+            speak_output = "Vitamin K useful for bruises and nose bleeding."
         else:
             speak_output = "Sorry, there was a problem. Please restart the skill."
 
@@ -1100,13 +1112,13 @@ class ConvertNutrientsUserInput(AbstractRequestHandler):
         # 1 gram of proteins = 4 calories
 
         if (type == "carbohydrates"):
-            speak_output = str(nutrientweight) + " gram of " + str(type) + " amounts to " + str(
+            speak_output = str(nutrientweight) + " grams of " + str(type) + " amounts to " + str(
                 calculateCaloriesCarbs) + " calories. You can try another nutrient or option now."
         elif (type == "fat" or type == "fats"):
-            speak_output = str(nutrientweight) + " gram of " + str(type) + " amounts to " + str(
+            speak_output = str(nutrientweight) + " grams of " + str(type) + " amounts to " + str(
                 calculateCaloriesFats) + " calories. You can try another nutrient or option now."
         elif (type == "protein" or type == "proteins"):
-            speak_output = str(nutrientweight) + " gram of " + str(type) + " amounts to " + str(
+            speak_output = str(nutrientweight) + " grams of " + str(type) + " amounts to " + str(
                 calculateCaloriesProteins) + " calories. You can try another nutrient or option now."
         else:
             speak_output = "Sorry, I couldn't calculate that. Try again using this format: Convert 300 grams of protein"
@@ -1123,8 +1135,8 @@ class FoodFunFacts(AbstractRequestHandler):
 
     def handle(self, handler_input):
 
-        # Generates a random number from 0 to 10
-        value = random.randint(0, 10)
+        # Generates a random number from 0 to 13
+        value = random.randint(0, 13)
 
         if (value == 0):
             speak_output = (
@@ -1175,6 +1187,15 @@ class FoodFunFacts(AbstractRequestHandler):
             speak_output = (
                 "Strawberries are not berries."
                 " Technically, berries only have seeds on the inside, a rule which is obviously broken by strawberries!")
+        elif (value == 11):
+            speak_output = "Broccoli contains more proteins than steak."
+        elif (value == 12):
+            speak_output = "Apples give you more energy than coffee."
+        elif (value == 13):
+            speak_output = (
+                "Bananas are actually classified as berries and strawberries aren't."
+                " Bananas can also float in water."
+                " Humans share 50% of their DNA with bananas!")
         else:
             print("Sorry, I think there's some kind of issue. Please retry.")
 
@@ -1257,7 +1278,8 @@ class DeleteProfile(AbstractRequestHandler):
         f.truncate(0)
         f.close()
 
-        speak_output = "I have deleted the session logs. Which profile would you like to delete? I have stored the profile(s) of " + str(user_name) + "."
+        speak_output = "I have deleted the session logs. Which profile would you like to delete? I have stored the profile(s) of " + str(
+            user_name) + "."
 
         return (
             handler_input.response_builder
@@ -1332,7 +1354,6 @@ sb.add_request_handler(LoadProfile())  # Option 11
 sb.add_request_handler(BMICalculatorProfileLoaded())  # Option 11
 sb.add_request_handler(DeleteProfile())  # Option 12
 sb.add_request_handler(DeleteProfileUserInput())  # Option 12
-
 
 # IntentReflectorHandler should be the last one, so it doesn't override your custom intent handlers
 sb.add_request_handler(IntentReflectorHandler())
