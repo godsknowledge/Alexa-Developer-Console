@@ -631,7 +631,7 @@ class FoodIntakeInfoHandler(AbstractRequestHandler):
         return ask_utils.is_intent_name("FoodIntakeInfoHandler")(handler_input)
 
     def handle(self, handler_input):
-        speak_output = "Tell me what you have eaten today or calculate the nutritional values of other food. Say, for example, 'I have eaten (300 grasm of) rice today'."
+        speak_output = "Tell me what you have eaten today or calculate the nutritional values of other food. Say, for example, 'I have eaten 300 grams of rice today'."
 
         return (
             handler_input.response_builder
