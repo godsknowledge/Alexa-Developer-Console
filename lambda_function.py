@@ -1278,8 +1278,7 @@ class DeleteProfile(AbstractRequestHandler):
         f.truncate(0)
         f.close()
 
-        speak_output = "I have deleted the session logs. Which profile would you like to delete? I have stored the profile(s) of " + str(
-            user_name) + "."
+        speak_output = "Which profile would you like to delete? I have stored the profile(s) of " + str(user_name) + "."
 
         return (
             handler_input.response_builder
@@ -1300,11 +1299,14 @@ class DeleteProfileUserInput(AbstractRequestHandler):
         slots = handler_input.request_envelope.request.intent.slots
         user = slots["user"].value
 
+        speak_output = "I have deleted the data for " + str(user) + "."
+        # Delete all attributes from the dynamo database
+        handler_input.attributes_manager.delete_persistent_attributes()
+
         try:
+            speak_output = "I have deleted the data for " + str(user) + "."
             # Delete all attributes from the dynamo database
             handler_input.attributes_manager.delete_persistent_attributes()
-            speak_output = "I have deleted the data for " + str(user) + "."
-
         except:
             speak_output = "Unfortunately, I could not delete the data of " + user + " . Please retry by saying 'Delete username'."
 
