@@ -231,7 +231,7 @@ class CatchAllExceptionHandler(AbstractExceptionHandler):
         # type: (HandlerInput, Exception) -> Response
         logger.error(exception, exc_info=True)
 
-        speak_output = "Sorry, that didn't work. Retry or use an option from 1 to 11."
+        speak_output = "Sorry, that didn't work. Retry or use an option from 1 to 12."
 
         return (
             handler_input.response_builder
@@ -270,6 +270,7 @@ class NameHandler(AbstractRequestHandler):
         f = open("/tmp/profile.txt", "a")
         f.write("User: " + str(userName) + ". ")
         f.close()
+
         # open and read the file after the appending:
         # f = open("/tmp/profile.txt", "r")
         # readFile = (f.read())
@@ -823,7 +824,7 @@ class DishDetails(AbstractRequestHandler):
         dishFats = []
 
         # For loop which iterates through food labels in JSON
-        for i in range(1, 7):
+        for i in range(1, 6):
             food_label.append(str(data['hints'][i]['food']['label']))
             dishCalories.append(str(data['hints'][i]['food']['nutrients']['ENERC_KCAL']))  # Calories
             dishCarbohydrates.append(str(data['hints'][i]['food']['nutrients']['CHOCDF']))  # Carbohydrates
