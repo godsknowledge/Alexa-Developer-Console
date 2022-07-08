@@ -175,7 +175,7 @@ class FallbackIntentHandler(AbstractRequestHandler):
 
     def handle(self, handler_input):
         logger.info("In FallbackIntentHandler")
-        speech = "Unfortunately, that did not work. Retry using a different phrase or use an option from 1 to 11."
+        speech = "Unfortunately, that did not work. Retry using a different phrase or use an option from 1 to 12."
         reprompt = "I didn't catch that. What can I help you with?"
 
         return handler_input.response_builder.speak(speech).ask(reprompt).response
@@ -409,9 +409,6 @@ class BMICalculator(AbstractRequestHandler):
         step1 = (float(calcHeight) * float(calcHeight)) / 10000  # (160*160)/10000 = 2.56
         step2 = (float(calcWeight) / step1)  # 55 / 2.56 = 21.5
 
-        speak_output = "calcWeight: " + str(calcWeight) + " and calcHeight: " + str(calcHeight) + " step2: " + str(
-            round(step2, 2))
-
         # Store user's BMI in DB
         persistent_attributes = handler_input.attributes_manager.persistent_attributes
         persistent_attributes["user_bmi"] = str(round(step2, 2))
@@ -430,21 +427,21 @@ class BMICalculator(AbstractRequestHandler):
         if (step2 <= 18.5):
             speak_output = "Your BMI is " + str(round(step2,
                                                       2)) + " and you are slightly underweight.  Do you want to know what your daily basal metabolic rate is?"
-        elif (step2 > 18.5 or round(step2, 2) <= 24.9):
+        elif (step2 > 18.5 and round(step2, 2) <= 24.9):
             speak_output = "Your BMI is " + str(round(step2,
-                                                      2)) + " and your weight is in the normal range. Do you want to know what your daily basal metabolic rate is?"
-        elif (step2 >= 25 or round(step2, 2) <= 29.9):
+                                                      2)) + " and your weight is in the normal range. That's awesome! Do you want to know what your daily basal metabolic rate is?"
+        elif (step2 >= 25 and round(step2, 2) <= 29.9):
             speak_output = "Your BMI is " + str(round(step2,
-                                                      2)) + " and you are overweight. Do you want to know what your daily basal metabolic rate is?"
-        elif (step2 >= 30 or round(step2, 2) <= 34.9):
+                                                      2)) + " and unfortunately you are overweight. Do you want to know what your daily basal metabolic rate is?"
+        elif (step2 >= 30 and round(step2, 2) <= 34.9):
             speak_output = "Your BMI is " + str(round(step2,
-                                                      2)) + " and you are very overweight.  Do you want to know what your daily basal metabolic rate is?"
-        elif (step2 >= 35 or round(step2, 2) <= 39.9):
+                                                      2)) + " and you are very overweight. It's best if you try seeking advice from a professional. Do you want to know what your daily basal metabolic rate is?"
+        elif (step2 >= 35 and round(step2, 2) <= 39.9):
             speak_output = "Your BMI is " + str(round(step2,
-                                                      2)) + " and you have second-degree obesity. Do you want to know what your daily basal metabolic rate is?"
+                                                      2)) + " and you have second-degree obesity. It's best if you try seeking advice from a professional. Do you want to know what your daily basal metabolic rate is?"
         else:
             speak_output = "Your BMI is " + str(round(step2,
-                                                      2)) + " and you have third-degree obesity. Do you want to know what your daily basal metabolic rate is?"
+                                                      2)) + " and you have third-degree obesity. It's best if you try seeking advice from a professional. Do you want to know what your daily basal metabolic rate is?"
 
         return (
             handler_input.response_builder
@@ -465,6 +462,7 @@ class CaloriesCalculator(AbstractRequestHandler):
         return ask_utils.is_intent_name("CaloriesCalculator")(handler_input)
 
     def handle(self, handler_input):
+
         userGender = handler_input.attributes_manager.session_attributes["gender"]
         calcAge = handler_input.attributes_manager.session_attributes["age"]
         calcWeight = handler_input.attributes_manager.session_attributes["userweight"]
@@ -481,26 +479,26 @@ class CaloriesCalculator(AbstractRequestHandler):
 
         if (userGender == "man" or userGender == "a male" or userGender == "a man" or userGender == "male"):
             f = open("/tmp/profile.txt", "a")
-            f.write("Daily basal metabolic rate: " + str(roundCaloriesMen) + ".")
+            f.write("Daily calories: " + str(roundCaloriesMen) + " .")
             f.close()
 
             # Store user's Calories in DB (male)
-            # persistent_attributes = handler_input.attributes_manager.persistent_attributes
-            # persistent_attributes["user_calories"] = str(roundCaloriesMen)
-            # handler_input.attributes_manager.save_persistent_attributes()
+            persistent_attributes = handler_input.attributes_manager.persistent_attributes
+            persistent_attributes["user_calories"] = str(roundCaloriesMen)
+            handler_input.attributes_manager.save_persistent_attributes()
 
             speak_output = "Your daily basal metabolic rate is about " + str(
                 roundCaloriesMen) + " calories. Do you want to lose, gain or maintain your weight?"
         elif (
                 userGender == "woman" or userGender == "female" or userGender == "girl" or userGender == "a woman" or userGender == "a girl"):
             f = open("/tmp/profile.txt", "a")
-            f.write("Daily basal metabolic rate :" + str(roundCaloriesWomen) + ". ")
+            f.write("Daily calories :" + str(roundCaloriesWomen) + " .")
             f.close()
 
             # Store user's Calories in DB (female)
-            # persistent_attributes = handler_input.attributes_manager.persistent_attributes
-            # persistent_attributes["user_calories"] = str(roundCaloriesWomen)
-            # handler_input.attributes_manager.save_persistent_attributes()
+            persistent_attributes = handler_input.attributes_manager.persistent_attributes
+            persistent_attributes["user_calories"] = str(roundCaloriesWomen)
+            handler_input.attributes_manager.save_persistent_attributes()
 
             speak_output = "Your daily basal metabolic rate is about " + str(
                 roundCaloriesWomen) + " calories. Do you want to lose, gain or maintain your weight?"
@@ -1216,7 +1214,7 @@ class LoadProfile(AbstractRequestHandler):
                 user_name) + ". You can calculate your BMI now directly."
             reprompt = "Test reprompt"
         except:
-            speak_output = "Unfortunately, this did not work."
+            speak_output = "Unfortunately, there are no profiles in the database. Try creating one by using option 1."
 
         # persistent_attributes = handler_input.attributes_manager.persistent_attributes
         # speak_output = "I have loaded the following profile. Name: " + persistent_attributes["user_name"] + " . Age: " + persistent_attributes["age"] + " ."
@@ -1275,7 +1273,8 @@ class DeleteProfile(AbstractRequestHandler):
         f.truncate(0)
         f.close()
 
-        speak_output = "Which profile would you like to delete? I have stored the profile(s) of " + str(user_name) + "."
+        speak_output = "I have deleted the session logs. Which profile would you like to delete? I have stored the profile(s) of " + str(
+            user_name) + "."
 
         return (
             handler_input.response_builder
@@ -1308,7 +1307,10 @@ class DeleteProfileUserInput(AbstractRequestHandler):
             speak_output = "Unfortunately, I could not delete the data of " + user + " . Please retry by saying 'Delete username'."
 
         return (
-            handler_input.response_builder.response
+            handler_input.response_builder
+                .speak(speak_output)
+                .ask(speak_output)
+                .response
         )
 
 
