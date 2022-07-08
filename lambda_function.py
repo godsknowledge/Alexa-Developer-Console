@@ -121,6 +121,7 @@ class FoodRequestHandler(AbstractRequestHandler):
         speak_output = "A " + str(foodtype) + " has " + str(food_calories) + " calories, " + str(
             food_carbohydrates) + " grams of carbohydrates, " + str(food_protein) + " grams of proteins and " + str(
             food_fat) + " grams of fat."
+
         reprompt = "Do you want to try more food?"
 
         return (
@@ -661,7 +662,7 @@ class CalculateFoodIntake(AbstractRequestHandler):
         food_protein = data['hints'][0]['food']['nutrients']['PROCNT']  # Amount of Protein
         food_fat = data['hints'][0]['food']['nutrients']['FAT']  # Amount of Fat
 
-        # Calculates the values if the user has specified an amount, f.ex. 300 grams of rice
+        # Calculates the values if the user has specified an amount, f.ex. 200 grams of banana
         if (foodamount != ""):
             # User has eaten a banana
             # a banana has 89 Calories
@@ -1103,13 +1104,13 @@ class ConvertNutrientsUserInput(AbstractRequestHandler):
         nutrientweight = slots["nutrientweight"].value  # Weight in grams
         type = slots["type"].value  # carbs/fat/proteins
 
-        calculateCaloriesCarbs = int(nutrientweight) * 4
-        calculateCaloriesFats = int(nutrientweight) * 9
-        calculateCaloriesProteins = int(nutrientweight) * 4
-
         # 1 gram of fat = 9 calories
         # 1 gram of carbohydrates = 4 calories
         # 1 gram of proteins = 4 calories
+
+        calculateCaloriesCarbs = int(nutrientweight) * 4  # Example: 100 gram carobhydrates = 100 * 4 = 400 calories
+        calculateCaloriesFats = int(nutrientweight) * 9  # Example: 100 gram fats = 100 * 9 = 900 calories
+        calculateCaloriesProteins = int(nutrientweight) * 4  # Example: 100 gram proteins = 100 * 4 = 400 calories
 
         if (type == "carbohydrates"):
             speak_output = str(nutrientweight) + " grams of " + str(type) + " amounts to " + str(
