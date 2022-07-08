@@ -412,10 +412,6 @@ class BMICalculator(AbstractRequestHandler):
         speak_output = "calcWeight: " + str(calcWeight) + " and calcHeight: " + str(calcHeight) + " step2: " + str(
             round(step2, 2))
 
-        f = open("/tmp/profile.txt", "a")
-        f.write("BMI: " + str(round(step2, 2)) + ". ")
-        f.close()
-
         # Store user's BMI in DB
         persistent_attributes = handler_input.attributes_manager.persistent_attributes
         persistent_attributes["user_bmi"] = str(round(step2, 2))
@@ -485,7 +481,7 @@ class CaloriesCalculator(AbstractRequestHandler):
 
         if (userGender == "man" or userGender == "a male" or userGender == "a man" or userGender == "male"):
             f = open("/tmp/profile.txt", "a")
-            f.write("Daily basal metabolic rate :" + str(roundCaloriesMen) + ".")
+            f.write("Daily basal metabolic rate: " + str(roundCaloriesMen) + ".")
             f.close()
 
             # Store user's Calories in DB (male)
