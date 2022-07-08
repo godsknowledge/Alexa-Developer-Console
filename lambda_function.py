@@ -627,7 +627,7 @@ class FoodIntakeInfoHandler(AbstractRequestHandler):
         return ask_utils.is_intent_name("FoodIntakeInfoHandler")(handler_input)
 
     def handle(self, handler_input):
-        speak_output = "Tell me what you have eaten today or calculate the nutritional values of other food. Say, for example, 'I have eaten 300 grams of rice today'."
+        speak_output = "Tell me what you have eaten today or calculate the nutritional values of other food. Say, for example, 'I have eaten 300 gram of rice today'."
 
         return (
             handler_input.response_builder
@@ -719,7 +719,7 @@ class CalculateFoodIntakeSum(AbstractRequestHandler):
         speak_output = "Total: " + str(round(session_attr["foodCaloriesSum"], 2)) + " calories. Carbohydrates:  " + str(
             round(session_attr["foodCarbohydratesSum"], 2)) + " grams. Fats: " + str(
             round(session_attr["foodFatSum"], 2)) + " grams. Proteins " + str(
-            round(session_attr["foodProteinsSum"], 2)) + " grams"
+            round(session_attr["foodProteinsSum"], 2)) + " grams."
 
         return (
             handler_input.response_builder.speak(speak_output).ask(speak_output).response
