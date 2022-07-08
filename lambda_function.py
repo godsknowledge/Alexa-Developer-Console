@@ -72,7 +72,7 @@ class LaunchRequestHandler(AbstractRequestHandler):
         session_attr["foodProteinsSum"] = 0
         session_attr["foodFatSum"] = 0
 
-        reprompt_text = "Please try writing Create Profile"
+        reprompt_text = "Please try saying 'Create Profile'."
 
         return (
             handler_input.response_builder
@@ -525,8 +525,8 @@ class GainWeightHandler(AbstractRequestHandler):
         roundCaloriesWomen = handler_input.attributes_manager.session_attributes["caloriesWomen"]
         roundCaloriesMen = handler_input.attributes_manager.session_attributes["caloriesMen"]
 
-        caloricSurplusWomen = float(roundCaloriesWomen + 300)
-        caloricSurplusMen = float(roundCaloriesMen + 500)
+        caloricSurplusWomen = float(roundCaloriesWomen + 200)
+        caloricSurplusMen = float(roundCaloriesMen + 300)
 
         # speak_output = "caloricSurplusMen: " + str(caloricSurplusMen) + " userGender: " + userGender
 
@@ -556,8 +556,8 @@ class LoseWeightHandler(AbstractRequestHandler):
         roundCaloriesWomen = handler_input.attributes_manager.session_attributes["caloriesWomen"]
         roundCaloriesMen = handler_input.attributes_manager.session_attributes["caloriesMen"]
 
-        caloricDeficitWomen = float(roundCaloriesWomen - 300)
-        caloricDeficitMen = float(roundCaloriesMen - 500)
+        caloricDeficitWomen = float(roundCaloriesWomen - 200)
+        caloricDeficitMen = float(roundCaloriesMen - 300)
 
         if (userGender == "Woman"):
             speak_output = "You have to eat " + str(caloricDeficitWomen) + " calories daily to lose weight."
@@ -610,7 +610,7 @@ class SessionLogs(AbstractRequestHandler):
         readFile = (f.read())
         f.close()
 
-        speak_output = "I have stored the following logs in this session: " + readFile
+        speak_output = "I have stored the following logs on this session: " + readFile
 
         return (
             handler_input.response_builder
@@ -732,7 +732,7 @@ class DishSuggestionsInfoIntent(AbstractRequestHandler):
         return ask_utils.is_intent_name("DishSuggestionsInfoIntent")(handler_input)
 
     def handle(self, handler_input):
-        speak_output = "Tell me a food item and a caloric range. (Example: Egg Range 100 to 300)"
+        speak_output = "Tell me a food item and a caloric range. (Say, for instance, 'Egg Range 100 to 300')"
 
         return (
             handler_input.response_builder.speak(speak_output).ask(speak_output).response
@@ -757,6 +757,7 @@ class DishSuggestionsUserInput(AbstractRequestHandler):
         handler_input.attributes_manager.session_attributes["rangeTo"] = caloricRangeTo
 
         # Make an API call to get dishes for the specified calories range
+
         create_foodtype_url = "https://api.edamam.com/api/food-database/v2/parser?app_id=cf568ffc&app_key=4ab5d97c9657f25c95983fd710a96627&ingr=" + str(
             foodsuggestion) + "&nutrition-type=cooking&calories=" + str(caloricRangeFrom) + "-" + str(caloricRangeTo)
         response_API = requests.get(create_foodtype_url)
@@ -781,22 +782,20 @@ class DishSuggestionsUserInput(AbstractRequestHandler):
             dishProteins.append(str(data['hints'][i]['food']['nutrients']['PROCNT']))  # Proteins
             dishFats.append(str(data['hints'][i]['food']['nutrients']['FAT']))  # Fat
 
-        try:
-            if (str(food_label[1]) != "" and str(food_label[2]) != "" and str(food_label[3]) != "" and str(
-                    food_label[4]) != ""):
-                speak_output = "You could try out the following dishes: 1. " + str(food_label[1]) + " 2. " + str(
-                    food_label[2]) + " 3. " + str(food_label[3]) + ", and 4. " + str(food_label[
-                                                                                         4]) + ". Do you want to know the details of one of the dishes? (Say, for example, 'Yes details second dish.')"
-            elif (str(food_label[1]) != "" and str(food_label[2]) != "" and str(food_label[3]) != ""):
-                speak_output = "You could try out the following dishes: 1. " + str(food_label[1]) + " 2. " + str(
-                    food_label[2]) + " 3. " + str(food_label[
-                                                      3]) + " .Do you want to know the details of one of the dishes? (Say, for example, 'Yes details second dish.')"
-            elif (str(food_label[1]) != "" and str(food_label[2]) != ""):
-                speak_output = "You could try out the following dishes: 1. " + str(food_label[1]) + " 2. " + str(
-                    food_label[
-                        2]) + " .Do you want to know the details of one of the dishes? (Say, for example, 'Yes details second dish.')"
-        except:
-            speak_output = "Sorry, I couldn't find any dishes for this caloric range. Do you want to retry it?"
+        if (str(food_label[1]) != "" and str(food_label[2]) != "" and str(food_label[3]) != "" and str(
+                food_label[4]) != ""):
+            speak_output = "You could try out the following dishes: 1. " + str(food_label[1]) + " 2. " + str(
+                food_label[2]) + " 3. " + str(food_label[3]) + ", and 4. " + str(food_label[
+                                                                                     4]) + ". Do you want to know the details of one of the dishes? (Say, for example, 'Yes details second dish.')"
+        elif (str(food_label[1]) != "" and str(food_label[2]) != "" and str(food_label[3]) != ""):
+            speak_output = "You could try out the following dishes: 1. " + str(food_label[1]) + " 2. " + str(
+                food_label[2]) + " 3. " + str(food_label[
+                                                  3]) + " . Do you want to know the details of one of the dishes? (Say, for example, 'Yes details second dish.')"
+        elif (str(food_label[1]) != "" and str(food_label[2]) != ""):
+            speak_output = "You could try out the following dishes: 1. " + str(food_label[1]) + " 2. " + str(food_label[
+                                                                                                                 2]) + " . Do you want to know the details of one of the dishes? (Say, for example, 'Yes details second dish.')"
+        else:
+            speak_output = "Sorry, I couldn't find any dishes for this caloric range in my database. Retry with other values please."
 
         return (
             handler_input.response_builder
@@ -955,7 +954,7 @@ class VitaminBenefits(AbstractRequestHandler):
                 userFeeling == "like I have circulatory problems")):
             speak_output = "Vitamin E is useful for muscle weakness, difficulties of walking and helps with circulatory problems. "
         elif (userFeeling == "bruises" or (userFeeling == "my nose bleeds")):
-            speak_output = "Vitamin K useful for bruises and nose bleeding."
+            speak_output = "Vitamin K helps in case of bruises and nose bleeding."
         else:
             speak_output = "Sorry, there was a problem. Please restart the skill."
 
