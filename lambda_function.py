@@ -781,12 +781,21 @@ class DishSuggestionsUserInput(AbstractRequestHandler):
             dishProteins.append(str(data['hints'][i]['food']['nutrients']['PROCNT']))  # Proteins
             dishFats.append(str(data['hints'][i]['food']['nutrients']['FAT']))  # Fat
 
-        if (str(food_label[1]) != "" and str(food_label[2]) != "" and str(food_label[3]) != "" and str(
-                food_label[4]) != ""):
-            speak_output = "You could try out the following dishes: 1. " + str(food_label[1]) + " 2. " + str(
-                food_label[2]) + " 3. " + str(food_label[3]) + ", and 4. " + str(food_label[
-                                                                                     4]) + ". Do you want to know the details of one of the dishes? (Say, for example, 'Yes details second dish.')"
-        else:
+        try:
+            if (str(food_label[1]) != "" and str(food_label[2]) != "" and str(food_label[3]) != "" and str(
+                    food_label[4]) != ""):
+                speak_output = "You could try out the following dishes: 1. " + str(food_label[1]) + " 2. " + str(
+                    food_label[2]) + " 3. " + str(food_label[3]) + ", and 4. " + str(food_label[
+                                                                                         4]) + ". Do you want to know the details of one of the dishes? (Say, for example, 'Yes details second dish.')"
+            elif (str(food_label[1]) != "" and str(food_label[2]) != "" and str(food_label[3]) != ""):
+                speak_output = "You could try out the following dishes: 1. " + str(food_label[1]) + " 2. " + str(
+                    food_label[2]) + " 3. " + str(food_label[
+                                                      3]) + " .Do you want to know the details of one of the dishes? (Say, for example, 'Yes details second dish.')"
+            elif (str(food_label[1]) != "" and str(food_label[2]) != ""):
+                speak_output = "You could try out the following dishes: 1. " + str(food_label[1]) + " 2. " + str(
+                    food_label[
+                        2]) + " .Do you want to know the details of one of the dishes? (Say, for example, 'Yes details second dish.')"
+        except:
             speak_output = "Sorry, I couldn't find any dishes for this caloric range. Do you want to retry it?"
 
         return (
@@ -832,21 +841,29 @@ class DishDetails(AbstractRequestHandler):
             dishFats.append(str(data['hints'][i]['food']['nutrients']['FAT']))  # Fat
 
         if (dishnumber == "first" or dishnumber == "1st"):
-            speak_output = "The dish " + str(food_label[1]) + " contains " + str(dishCalories[1]) + " calories, " + str(
-                dishCarbohydrates[1]) + " grams of carbohydrates, " + str(
-                dishProteins[1]) + " grams of proteins and " + str(dishFats[1]) + " grams of fats."
+            speak_output = "The dish " + str(food_label[1]) + " contains " + str(
+                round(float(dishCalories[1]), 2)) + " calories, " + str(
+                round(float(dishCarbohydrates[1]), 2)) + " grams of carbohydrates, " + str(
+                round(float(dishProteins[1]), 2)) + " grams of proteins and " + str(
+                round(float(dishFats[1]), 2)) + " grams of fats."
         elif (dishnumber == "second" or dishnumber == "2nd"):
-            speak_output = "The dish " + str(food_label[2]) + " contains " + str(dishCalories[2]) + " calories, " + str(
-                dishCarbohydrates[2]) + " grams of carbohydrates, " + str(
-                dishProteins[2]) + " grams of proteins and " + str(dishFats[2]) + " grams of fats."
+            speak_output = "The dish " + str(food_label[2]) + " contains " + str(
+                round(float(dishCalories[2]), 2)) + " calories, " + str(
+                round(float(dishCarbohydrates[2]), 2)) + " grams of carbohydrates, " + str(
+                round(float(dishProteins[2]), 2)) + " grams of proteins and " + str(
+                round(float(dishFats[2]), 2)) + " grams of fats."
         elif (dishnumber == "third" or dishnumber == "3rd"):
-            speak_output = "The dish " + str(food_label[3]) + " contains " + str(dishCalories[3]) + " calories, " + str(
-                dishCarbohydrates[3]) + " grams of carbohydrates, " + str(
-                dishProteins[3]) + " grams of proteins and " + str(dishFats[3]) + " grams of fats."
+            speak_output = "The dish " + str(food_label[3]) + " contains " + str(
+                round(float(dishCalories[3]), 2)) + " calories, " + str(
+                round(float(dishCarbohydrates[3]), 2)) + " grams of carbohydrates, " + str(
+                round(float(dishProteins[3]), 2)) + " grams of proteins and " + str(
+                round(float(dishFats[3]), 2)) + " grams of fats."
         elif (dishnumber == "fourth" or dishnumber == "4th"):
-            speak_output = "The dish " + str(food_label[4]) + " contains " + str(dishCalories[4]) + " calories, " + str(
-                dishCarbohydrates[4]) + " grams of carbohydrates, " + str(
-                dishProteins[4]) + " grams of proteins and " + str(dishFats[4]) + " grams of fats."
+            speak_output = "The dish " + str(food_label[4]) + " contains " + str(
+                round(float(dishCalories[4]), 2)) + " calories, " + str(
+                round(float(dishCarbohydrates[4]), 2)) + " grams of carbohydrates, " + str(
+                round(float(dishProteins[4]), 2)) + " grams of proteins and " + str(
+                round(float(dishFats[4]), 2)) + " grams of fats."
         else:
             speak_output = "Sorry, I couldn't find the details for your dish. Are you sure you said something like Yes details first/second/third/fourth dish? Just try again. "
 
